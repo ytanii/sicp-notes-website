@@ -4,9 +4,9 @@ export const themeConfig: ThemeConfig = {
   // SITE INFO ///////////////////////////////////////////////////////////////////////////////////////////
   site: {
     website: 'https://sicpnotes.pages.dev/', // Site domain
-    title: 'SICP Notes', // Site title
-    author: 'ytanii', // Author name
-    description: 'Minimal blog built by Astro', // Site description
+    title: '', // Site title
+    author: 'y', // Author name
+    description: 'built by Astro', // Site description
     language: 'en-US' // Default language
   },
 
@@ -16,13 +16,13 @@ export const themeConfig: ThemeConfig = {
     centeredLayout: true, // Use centered layout (false for left-aligned)
     themeToggle: true, // Show theme toggle button (uses system theme by default)
     postListDottedDivider: false, // Show dotted divider in post list
-    footer: true, // Show footer
+    footer: false, // Show footer
     fadeAnimation: true // Enable fade animations
   },
 
   // DATE SETTINGS ///////////////////////////////////////////////////////////////////////////////////////
   date: {
-    dateFormat: 'YYYY-MM-DD', // Date format: YYYY-MM-DD, MM-DD-YYYY, DD-MM-YYYY, MONTH DAY YYYY, DAY MONTH YYYY
+    dateFormat: 'MM-DD-YYYY', // Date format: YYYY-MM-DD, MM-DD-YYYY, DD-MM-YYYY, MONTH DAY YYYY, DAY MONTH YYYY
     dateSeparator: '.', // Date separator: . - / (except for MONTH DAY YYYY and DAY MONTH YYYY)
     dateOnRight: true // Date position in post list (true for right, false for left)
   },

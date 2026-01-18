@@ -19,15 +19,27 @@ import BaseLayout from '@/layouts/BaseLayout.astro'
 
 import { themeConfig } from '@/config'
 
-const { title, pubDate, readingTime, toc } = Astro.props as PostLayoutProps
+interface ExtendedPostLayoutProps extends PostLayoutProps {
+  chapter?: number
+  section?: number
+}
+
+const { title, pubDate, readingTime, toc, chapter, section } = Astro.props as ExtendedPostLayoutProps
+
+// Generate display title with automatic numbering
+const displayTitle = chapter ? (section ? `${chapter}.${section} ${title}` : `${chapter} ${title}`) : title
 
 const postSlug = Astro.url.pathname.split('/').filter(Boolean).pop() || ''
 const ogImage = `/open-graph/${postSlug}.png`
 ---
 
-<BaseLayout title={`${title} · ${themeConfig.site.title}`} description={themeConfig.site.description} type="post">
+<BaseLayout
+  title={`${displayTitle} · ${themeConfig.site.title}`}
+  description={themeConfig.site.description}
+  type="post"
+>
   <BaseHead
-    title={`${title} · ${themeConfig.site.title}`}
+    title={`${displayTitle} · ${themeConfig.site.title}`}
     description={themeConfig.site.description}
     ogImage={ogImage}
     slot="head"
@@ -39,7 +51,7 @@ const ogImage = `/open-graph/${postSlug}.png`
         <BackButton />
         {themeConfig.post.toc && <TableOfContents toc={toc} />}
         <div class="title">
-          <h1>{title}</h1>
+          <h1>{displayTitle}</h1>
           <div class="date">
             <FormattedDate date={pubDate} context="post" />
             {

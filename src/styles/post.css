@@ -11,7 +11,7 @@
 }
 
 /* Remove margin-top for the first child */
-.prose .content > :first-child {
+.prose .content> :first-child {
   margin-top: 0;
 }
 
@@ -129,6 +129,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -149,12 +150,12 @@
   text-align: center;
 }
 
-.prose p > img {
+.prose p>img {
   position: relative;
   margin-bottom: 2em;
 }
 
-.prose p > img::after {
+.prose p>img::after {
   content: attr(alt);
   display: block;
   position: absolute;
@@ -232,7 +233,7 @@
   margin-bottom: 0;
 }
 
-.prose ul li > ul {
+.prose ul li>ul {
   margin-top: 0.5em;
   margin-bottom: 0.5em;
 }
@@ -249,6 +250,16 @@
   background-color: var(--text-tertiary);
 }
 
+/* Remove bullet from list items that contain ordered lists */
+.prose ul li:has(ol)::before {
+  display: none !important;
+  content: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: none !important;
+}
+
+
 /* Ordered lists */
 .prose ol {
   list-style-position: outside;
@@ -263,12 +274,11 @@
   position: relative;
   padding-left: 0.125rem;
   margin-bottom: 0.5em;
+  list-style: none;
+  /* Ensure no default list styling */
 }
 
-.prose ol li:last-child {
-  margin-bottom: 0;
-}
-
+/* Specifically prevent bullets on ol li */
 .prose ol li::before {
   content: counter(item) '.';
   counter-increment: item;
@@ -279,15 +289,30 @@
   color: var(--text-secondary);
   opacity: 0.75;
   font-variant-numeric: tabular-nums;
-  font-feature-settings:
-    'tnum' 1,
-    'zero' 0,
-    'cv01' 1,
-    'cv02' 1,
-    'calt' 1,
-    'ss03' 1,
-    'liga' 1,
-    'ordn' 1;
+  line-height: 1.75;
+  /* Match the line-height of the text */
+  top: 0;
+}
+
+/* Remove any ul bullets that might appear on nested ol */
+.prose ul>li>ol,
+.prose ul>li>ol>li {
+  list-style: none;
+}
+
+.prose ul>li>ol>li::before {
+  /* This overrides the ul bullet - numbers only */
+  content: counter(item) '.';
+  counter-increment: item;
+  position: absolute;
+  left: -1.15rem;
+  width: 1.5rem;
+  text-align: left;
+  color: var(--text-secondary);
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+  background: transparent;
+  border-radius: 0;
 }
 
 /* Task lists */
@@ -345,7 +370,7 @@
   opacity: 0.55;
 }
 
-.prose ul.contains-task-list li.task-list-item input[type='checkbox'] + * {
+.prose ul.contains-task-list li.task-list-item input[type='checkbox']+* {
   display: inline;
   margin-left: 0;
   line-height: 1.75;
@@ -468,10 +493,12 @@
 }
 
 @keyframes footnote-highlight {
+
   0%,
   87% {
     background-color: var(--selection);
   }
+
   100% {
     background-color: transparent;
   }
@@ -492,7 +519,7 @@
   }
 }
 
-.prose pre > code {
+.prose pre>code {
   font-family: var(--mono);
   font-feature-settings:
     'liga' 0,
@@ -509,7 +536,7 @@
   border-radius: 0;
 }
 
-.prose pre > code * {
+.prose pre>code * {
   font-size: var(--font-size-s);
 }
 
@@ -551,6 +578,7 @@
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
+
   .katex,
   .katex * {
     color: inherit;

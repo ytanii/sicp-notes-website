@@ -20,4 +20,20 @@ const { Content } = hasContent && aboutEntry ? await render(aboutEntry) : { Cont
   .about:not(:empty) {
     margin-bottom: 1.25rem;
   }
+
+  /* Drop cap - bold, large, no italics */
+  .about :global(p:first-of-type)::first-letter {
+    float: left;
+    font-size: 3.5em;
+    line-height: 0.75;
+    margin: 0.1em 0.15em 0 0;
+    font-weight: 700; /* Bold */
+    font-style: normal; /* No italics */
+    color: var(--text-primary);
+  }
+
+  /* Ensure proper text flow around drop cap */
+  .about :global(p:first-of-type) {
+    margin-top: 0;
+  }
 </style>

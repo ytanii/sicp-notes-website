@@ -10,7 +10,11 @@ const notes = defineCollection({
       title: z.string(),
       // Transform string to Date object
       pubDate: z.coerce.date(),
-      image: z.string().optional()
+      image: z.string().optional(),
+      // For hierarchical organization
+      chapter: z.number().optional(), // e.g., 1, 2, 3
+      section: z.number().optional(), // e.g., 1, 2, 3 (within a chapter)
+      description: z.string().optional()
     })
 })
 
