@@ -15,7 +15,7 @@ const markdownParser = new MarkdownIt({
 })
 
 const imagesGlob = import.meta.glob<{ default: ImageMetadata }>(
-  '/src/content/posts/_assets/**/*.{jpeg,jpg,png,gif,webp}'
+  '/src/content/notes/_assets/**/*.{jpeg,jpg,png,gif,webp}'
 )
 
 /**
@@ -39,14 +39,14 @@ async function fixRelativeImagePaths(htmlContent: string, baseUrl: string, postP
     }
 
     if (src.startsWith('./') || src.startsWith('../')) {
-      // Build path relative to /src/content/posts
+      // Build path relative to /src/content/notes
       let resolvedPath: string
       if (src.startsWith('./')) {
         // ./xxx -> postDir/xxx
-        resolvedPath = path.posix.join('/src/content/posts', postDir, src.slice(2))
+        resolvedPath = path.posix.join('/src/content/notes', postDir, src.slice(2))
       } else {
         // ../xxx -> Resolve to parent directory
-        resolvedPath = path.posix.resolve('/src/content/posts', postDir, src)
+        resolvedPath = path.posix.resolve('/src/content/notes', postDir, src)
       }
 
       // Check if corresponding image module exists
@@ -58,7 +58,7 @@ async function fixRelativeImagePaths(htmlContent: string, baseUrl: string, postP
           // In development environment, don't process images, use original paths to ensure cross-platform compatibility
           if (import.meta.env.DEV) {
             // Development environment: use relative paths
-            const relativePath = resolvedPath.replace('/src/content/posts/', '/')
+            const relativePath = resolvedPath.replace('/src/content/notes/', '/')
             const imageUrl = new URL(relativePath, baseUrl).toString()
             img.setAttribute('src', imageUrl)
           } else {
@@ -75,7 +75,7 @@ async function fixRelativeImagePaths(htmlContent: string, baseUrl: string, postP
         } catch (error) {
           console.error(`[Feed] Image processing failed: ${src} -> ${resolvedPath}`, error)
           // Use original path as fallback when error occurs
-          const relativePath = resolvedPath.replace('/src/content/posts/', '/')
+          const relativePath = resolvedPath.replace('/src/content/notes/', '/')
           const imageUrl = new URL(relativePath, baseUrl).toString()
           img.setAttribute('src', imageUrl)
         }
@@ -117,9 +117,9 @@ async function generateFeedInstance(context: APIContext) {
     }
   })
 
-  const posts = await getCollection('posts', ({ id }: CollectionEntry<'posts'>) => !id.startsWith('_'))
+  const posts = await getCollection('notes', ({ id }: CollectionEntry<'notes'>) => !id.startsWith('_'))
   const sortedPosts = posts.sort(
-    (a: CollectionEntry<'posts'>, b: CollectionEntry<'posts'>) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+    (a: CollectionEntry<'notes'>, b: CollectionEntry<'notes'>) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
   )
 
   for (const post of sortedPosts) {

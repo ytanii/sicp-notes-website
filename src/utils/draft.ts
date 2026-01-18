@@ -4,8 +4,8 @@ import { getCollection, type CollectionEntry } from 'astro:content'
  * Get all posts, filtering out posts whose filenames start with _
  */
 export async function getFilteredPosts() {
-  const posts = await getCollection('posts')
-  return posts.filter((post: CollectionEntry<'posts'>) => !post.id.startsWith('_'))
+  const posts = await getCollection('notes')
+  return posts.filter((post: CollectionEntry<'notes'>) => !post.id.startsWith('_'))
 }
 
 /**
@@ -14,6 +14,6 @@ export async function getFilteredPosts() {
 export async function getSortedFilteredPosts() {
   const posts = await getFilteredPosts()
   return posts.sort(
-    (a: CollectionEntry<'posts'>, b: CollectionEntry<'posts'>) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+    (a: CollectionEntry<'notes'>, b: CollectionEntry<'notes'>) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
   )
 }

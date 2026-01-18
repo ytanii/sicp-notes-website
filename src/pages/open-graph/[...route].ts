@@ -4,19 +4,19 @@ import { themeConfig } from '../../config'
 
 export const prerender = true
 
-const collectionEntries = await getCollection('posts')
+const collectionEntries = await getCollection('notes')
 
 // Map the array of content collection entries to create an object.
 // Converts [{ id: 'post.md', data: { title: 'Example', pubDate: Date } }]
 // to { 'post.md': { title: 'Example', pubDate: Date } }
 const pages = Object.fromEntries(
-  collectionEntries.map((entry: CollectionEntry<'posts'>) => [entry.id.replace(/\.(md|mdx)$/, ''), entry.data])
+  collectionEntries.map((entry: CollectionEntry<'notes'>) => [entry.id.replace(/\.(md|mdx)$/, ''), entry.data])
 )
 
 export const { getStaticPaths, GET } = await OGImageRoute({
   param: 'route',
   pages,
-  getImageOptions: (_path: string, page: CollectionEntry<'posts'>['data']) => ({
+  getImageOptions: (_path: string, page: CollectionEntry<'notes'>['data']) => ({
     title: page.title,
     description: themeConfig.site.title,
     logo: {

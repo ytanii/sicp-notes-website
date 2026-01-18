@@ -13,7 +13,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "new": "tsx scripts/new-post.ts",
+    "new": "tsx scripts/new-note.ts",
     "update-theme": "tsx scripts/update-theme.ts"
   },
   "dependencies": {

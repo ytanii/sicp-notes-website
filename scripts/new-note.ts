@@ -1,5 +1,5 @@
 /**
- * Create a new post with frontmatter
+ * Create a new note with frontmatter
  * Usage: pnpm new <title>
  */
 
@@ -9,9 +9,9 @@ import process from 'node:process'
 
 // Process title from all arguments
 const titleArgs: string[] = process.argv.slice(2)
-const rawTitle: string = titleArgs.length > 0 ? titleArgs.join(' ') : 'new-post'
+const rawTitle: string = titleArgs.length > 0 ? titleArgs.join(' ') : 'new-note'
 
-// Check if title starts with underscore (draft post)
+// Check if title starts with underscore (draft note)
 const isDraft: boolean = rawTitle.startsWith('_')
 const displayTitle: string = isDraft ? rawTitle.slice(1) : rawTitle
 
@@ -22,7 +22,7 @@ const fileName: string = rawTitle
   .replace(/-+/g, '-') // Replace multiple hyphens with single
   .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
 const targetFile: string = `${fileName}.md`
-const fullPath: string = join('src/content/posts', targetFile)
+const fullPath: string = join('src/content/notes', targetFile)
 
 // Check if the target file already exists
 if (existsSync(fullPath)) {
@@ -47,9 +47,9 @@ try {
   if (isDraft) {
     console.log(`📝 Draft created: ${fullPath}`)
   } else {
-    console.log(`✅ Post created: ${fullPath}`)
+    console.log(`✅ Note created: ${fullPath}`)
   }
 } catch (error) {
-  console.error('⚠️ Failed to create post:', error)
+  console.error('⚠️ Failed to create note:', error)
   process.exit(1)
 }

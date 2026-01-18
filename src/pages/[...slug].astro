@@ -4,7 +4,7 @@ import PostLayout from '@/layouts/PostLayout.astro'
 import { render } from 'astro:content'
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts')
+  const posts = await getCollection('notes')
   return posts
     .filter((post) => !post.id.startsWith('_'))
     .map((post) => ({
@@ -13,7 +13,7 @@ export async function getStaticPaths() {
     }))
 }
 
-type Props = CollectionEntry<'posts'>
+type Props = CollectionEntry<'notes'>
 
 const post = Astro.props
 const { Content, remarkPluginFrontmatter } = await render(post)
