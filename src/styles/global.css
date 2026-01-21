@@ -104,6 +104,20 @@ html {
   transition: background-color 0.2s ease-out;
 }
 
+/* Prevent anchor links from scrolling past target due to fixed header/top padding */
+:target,
+[id] {
+  scroll-margin-top: 6rem;
+}
+
+@media (max-width: 768px) {
+
+  :target,
+  [id] {
+    scroll-margin-top: 4rem;
+  }
+}
+
 body {
   font-family: var(--sans);
   font-feature-settings: 'ss03' 1;

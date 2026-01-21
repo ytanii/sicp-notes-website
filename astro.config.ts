@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config'
 import mdx from '@astrojs/mdx'
 import sitemap from '@astrojs/sitemap'
+import react from '@astrojs/react'
 import playformInline from '@playform/inline'
 import remarkMath from 'remark-math'
 import remarkDirective from 'remark-directive'
@@ -38,7 +39,8 @@ export default defineConfig({
       Exclude: [(file) => file.toLowerCase().includes('katex')]
     }),
     mdx(),
-    sitemap()
+    sitemap(),
+    react()
   ],
   vite: {
     resolve: {

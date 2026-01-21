@@ -142,6 +142,11 @@
     }
   }
 
+  /* Invert SVGs in dark mode */
+  html.dark .image-viewer img[src*='.svg'] {
+    filter: invert(1);
+  }
+
   body.image-viewer-open {
     overflow: hidden;
   }

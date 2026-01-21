@@ -49,7 +49,7 @@ import { themeConfig } from '@/config'
   .theme-icon {
     width: 0.4375rem;
     height: 0.4375rem;
-    transition: all 0.2s ease;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .hollow-circle {
@@ -61,5 +61,14 @@ import { themeConfig } from '@/config'
   .solid-circle {
     background-color: var(--text-primary);
     border-radius: 50%;
+  }
+
+  /* Swap positions in dark mode */
+  html.dark .hollow-circle {
+    transform: translateX(calc(0.4375rem + 0.1875rem));
+  }
+
+  html.dark .solid-circle {
+    transform: translateX(calc(-0.4375rem - 0.1875rem));
   }
 </style>

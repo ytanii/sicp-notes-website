@@ -1,0 +1,267 @@
+.chapter-list {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.chapter-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.chapter-summary-wrapper {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+    position: relative;
+    gap: 0.5rem;
+}
+
+/* Toggle Button */
+.chapter-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+.chapter-toggle-placeholder {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+}
+
+/* The rotating stick */
+.chapter-toggle::after {
+    content: '';
+    position: absolute;
+    width: 0.8rem;
+    height: 1.5px;
+    background-color: var(--text-secondary);
+    opacity: 0.8;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: rotate(0deg);
+    /* Horizontal (Closed) */
+}
+
+/* Open State for Toggle */
+.chapter-toggle.open::after {
+    transform: rotate(90deg);
+    /* Vertical (Open) */
+    opacity: 0.6;
+}
+
+/* Link Styling */
+.chapter-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 1rem;
+    transition: color 0.2s ease-out;
+    flex-grow: 1;
+}
+
+.chapter-number {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+    min-width: 1.5rem;
+    font-size: 0.95em;
+    opacity: 0.75;
+}
+
+.chapter-title {
+    font-weight: 500;
+}
+
+/* Tree Structure Wrapper */
+.section-list-wrapper {
+    margin: 0 0 0.5rem 0;
+    position: relative;
+    padding-left: 0.75rem;
+    /* Center trunk under the toggle (1.5rem / 2) */
+}
+
+/* Tree Trunk (Vertical Line) */
+.tree-trunk {
+    position: absolute;
+    top: 0;
+    left: 0.75rem;
+    /* Center of the toggle */
+    width: 1.5px;
+    height: 100%;
+    background-color: var(--border);
+    transform: translateX(-50%);
+    opacity: 0.5;
+}
+
+.section-list {
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+    position: relative;
+}
+
+.section-list:hover .section-item {
+    opacity: 0.4;
+    filter: grayscale(100%);
+}
+
+.section-list:hover .section-item:hover {
+    opacity: 1;
+    filter: grayscale(0%);
+}
+
+.section-item {
+    position: relative;
+    padding-left: 2rem;
+    /* Initial padding */
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.section-item a {
+    color: var(--text-primary);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.2rem 0;
+    transition: color 0.2s ease-out;
+    position: relative;
+}
+
+/* Branch Logic (Horizontal Lines) */
+.section-item::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    /* Start from the trunk position (relative to section-item's padding-left?) No... */
+    /* 
+       Trunk is at .section-list-wrapper padding-left (0.75rem)
+       .section-item is inside .section-list inside .section-list-wrapper
+       
+       Let's adjust positioning.
+       .section-item is relative.
+       
+       We want the line to go from the trunk (left: 0 of .section-list-wrapper essentially?)
+       to the text.
+    */
+    left: 0;
+    width: 1.75rem;
+    /* Gap between trunk and text */
+    height: 1.5px;
+    background-color: var(--text-secondary);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+    opacity: 0.5;
+    z-index: 1;
+}
+
+/* Adjust .section-item to help with absolute positioning of branches */
+/* Actually, the trunk is in .section-list-wrapper. .section-list is sibling to trunk. */
+/* .section-item is child of .section-list. */
+/* If .section-list has no padding, then .section-item's left:0 is the trunk's location properly? */
+/* Trunk is at left: 0.75rem of Wrapper. */
+/* List is likely just filling wrapper. */
+/* Wrapper has padding-left: 0.75rem. So List starts AFTER trunk. */
+/* So .section-item's left edge is AT the trunk line. */
+/* So ::before at left: 0 should start at trunk. Perfect. */
+
+/* Hover Effects */
+@media (hover: hover) and (pointer: fine) {
+    .chapter-link:hover {
+        color: var(--text-secondary);
+    }
+
+    /* Branch Expansion on Section Hover */
+    .section-item:hover::before {
+        transform: scaleX(1);
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Retract when not hovered - default state handles this */
+
+    .chapter-toggle:hover::after {
+        opacity: 1;
+    }
+}
+
+.section-number {
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+    min-width: 2rem;
+    font-size: 0.875em;
+    opacity: 0.6;
+}
+
+.section-title {
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+/* Exercises */
+.exercises-wrapper {
+    margin-top: 0.25rem;
+    padding-left: 2rem;
+    position: relative;
+}
+
+/* Branch for Exercises Header? Maybe later if requested. */
+.exercises-header {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-tertiary);
+    margin-bottom: 0.25rem;
+}
+
+.exercises-list {
+    padding: 0;
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.exercise-chip {
+    list-style: none;
+}
+
+.exercise-chip a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    padding: 0.15rem 0.6rem;
+    border: 1px solid var(--border);
+    /* Changed from --border-muted which might not exist */
+    border-radius: 999px;
+    transition: all 0.2s ease;
+    background-color: transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .exercise-chip a:hover {
+        color: var(--text-primary);
+        border-color: var(--text-tertiary);
+        background-color: var(--bg);
+    }
+}

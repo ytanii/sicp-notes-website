@@ -163,9 +163,18 @@ const { toc = [] }: TOCProps = Astro.props
       state.links.forEach((link) => link.classList.remove('active'))
 
       if (currentActive && state.headingMap.has(currentActive)) {
-        state.headingMap.get(currentActive).classList.add('active')
+        const activeLink = state.headingMap.get(currentActive)
+        activeLink.classList.add('active')
+
+        // Ensure active link is visible in TOC
+        if (state.container && state.container.scrollHeight > state.container.clientHeight) {
+          activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        }
       } else if (state.titleLink) {
         state.titleLink.classList.add('active')
+        if (state.container) {
+          state.container.scrollTo({ top: 0, behavior: 'smooth' })
+        }
       }
     }
 
@@ -261,6 +270,14 @@ const { toc = [] }: TOCProps = Astro.props
     padding-left: 1rem;
     z-index: 10;
     left: auto;
+    max-height: calc(100vh - 18rem);
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  .toc-container.fixed-position::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
   }
 
   .toc-nav {

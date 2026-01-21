@@ -14,7 +14,8 @@ const notes = defineCollection({
       // For hierarchical organization
       chapter: z.number().optional(), // e.g., 1, 2, 3
       section: z.number().optional(), // e.g., 1, 2, 3 (within a chapter)
-      description: z.string().optional()
+      description: z.string().optional(),
+      docType: z.string().optional()
     })
 })
 

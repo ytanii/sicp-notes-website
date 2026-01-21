@@ -111,7 +111,12 @@
   max-width: 100%;
   height: auto;
   display: block;
-  margin: 2em 0;
+  margin: 2em auto;
+}
+
+/* Invert SVGs in dark mode (useful for diagrams) */
+html.dark .prose img[src*='.svg'] {
+  filter: invert(1);
 }
 
 .img-placeholder {
@@ -207,6 +212,8 @@
   display: inline-block;
   margin-top: 0.5em;
 }
+
+
 
 /* Unordered lists */
 .prose ul {
@@ -542,6 +549,11 @@
 
 /* KaTeX Math Rendering */
 
+/* Prevent .prose * reset from overriding KaTeX's internal font sizes */
+.katex * {
+  font-size: unset;
+}
+
 /* Hide MathML fallback to prevent duplication */
 .katex-mathml {
   display: none !important;
@@ -551,6 +563,14 @@
 .katex-display {
   text-align: center;
   margin: 1.75em 0;
+}
+
+/* Ensure inline math has proper vertical spacing for tall elements */
+.prose p>.katex,
+.prose li>.katex,
+.prose strong+.katex {
+  display: inline-block;
+  vertical-align: middle;
 }
 
 /* Reset any conflicting styles that might interfere with KaTeX */
