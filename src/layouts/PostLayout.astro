@@ -92,3 +92,90 @@ const ogImage = `/open-graph/${postSlug}.png`
     flex: 1;
   }
 </style>
+
+<script>
+  // Convert imports sections to collapsible details/summary with structured list
+  function styleImportsSections() {
+    const prose = document.querySelector('.prose .content')
+    if (!prose) return
+
+    const paragraphs = prose.querySelectorAll('p')
+    paragraphs.forEach((p) => {
+      // Skip if already processed
+      if (p.dataset.importsProcessed) return
+
+      const firstChild = p.firstElementChild
+      if (firstChild?.tagName === 'EM') {
+        const text = firstChild.textContent?.trim() || ''
+        if (text === 'Imports' || text.startsWith('Imports:') || text === 'Imports:') {
+          p.dataset.importsProcessed = 'true'
+
+          // Create details/summary structure
+          const details = document.createElement('details')
+          details.className = 'imports-section'
+
+          const summary = document.createElement('summary')
+          summary.textContent = 'Imports'
+
+          // Create list for imports
+          const list = document.createElement('ul')
+          list.className = 'imports-list'
+
+          // Collect nodes after the "Imports:" label
+          const nodes = Array.from(p.childNodes).slice(1) // Skip the first em
+
+          // Parse into groups separated by commas
+          let currentGroup = document.createElement('li')
+          let hasContent = false
+
+          nodes.forEach((node) => {
+            if (node.nodeType === 3) {
+              // Text node - check for comma separator
+              const text = node.textContent || ''
+              if (text.includes(',')) {
+                // Split by comma
+                const parts = text.split(',')
+                parts.forEach((part, i) => {
+                  if (part.trim()) {
+                    currentGroup.appendChild(document.createTextNode(part.trim() + ' '))
+                    hasContent = true
+                  }
+                  if (i < parts.length - 1 && hasContent) {
+                    // Comma found - end current group, start new one
+                    list.appendChild(currentGroup)
+                    currentGroup = document.createElement('li')
+                    hasContent = false
+                  }
+                })
+              } else if (text.trim() && text.trim() !== ':') {
+                currentGroup.appendChild(document.createTextNode(text))
+                hasContent = true
+              }
+            } else {
+              // Element node (link or code)
+              currentGroup.appendChild(node.cloneNode(true))
+              hasContent = true
+            }
+          })
+
+          // Add the last group if it has content
+          if (hasContent && currentGroup.childNodes.length > 0) {
+            list.appendChild(currentGroup)
+          }
+
+          details.appendChild(summary)
+          details.appendChild(list)
+
+          // Replace the paragraph with the details element
+          p.replaceWith(details)
+        }
+      }
+    })
+  }
+
+  // Run on page load
+  styleImportsSections()
+
+  // Run on view transitions (for Astro view transitions)
+  document.addEventListener('astro:page-load', styleImportsSections)
+</script>

@@ -26,15 +26,33 @@
 
 /* Headings (h1-h5)
  Adjust size or spacing below if needed. */
-.prose h1,
-.prose h2,
-.prose h3,
+.prose h1 {
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.35;
+  margin: 2.25em 0 1.25rem 0;
+}
+
+.prose h2 {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.45;
+  margin: 1.75em 0 1.25rem 0;
+}
+
+.prose h3 {
+  font-size: 1.125rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.55;
+  margin: 1.5em 0 1rem 0;
+}
+
 .prose h4,
 .prose h5 {
   font-size: var(--font-size-m);
   font-weight: var(--font-weight-bold);
   line-height: 1.75;
-  margin: 3.75em 0 1.75em 0;
+  margin: 1.25em 0 1em 0;
 }
 
 /* Bold text */
@@ -543,6 +561,16 @@ html.dark .prose img[src*='.svg'] {
   border-radius: 0;
 }
 
+/* Syntax highlighting on hover only */
+.prose pre code span {
+  transition: color 0.4s ease-out;
+}
+
+.prose pre:not(:hover) code span {
+  color: var(--text-primary) !important;
+  opacity: 0.85;
+}
+
 .prose pre>code * {
   font-size: var(--font-size-s);
 }
@@ -562,7 +590,7 @@ html.dark .prose img[src*='.svg'] {
 /* Ensure display math is centered */
 .katex-display {
   text-align: center;
-  margin: 1.75em 0;
+  margin: 2.25em 0;
 }
 
 /* Ensure inline math has proper vertical spacing for tall elements */
@@ -627,4 +655,141 @@ html.dark .prose img[src*='.svg'] {
 /* Spotify */
 .prose iframe[src*='spotify.com'] {
   aspect-ratio: auto;
+}
+
+/* Imports Section Styling
+ * Collapsible details/summary for imports - collapsed by default */
+.prose details.imports-section {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin: 0.5em 0 1.5em 0;
+  line-height: 1.6;
+}
+
+.prose details.imports-section summary {
+  cursor: pointer;
+  font-style: italic;
+  color: var(--text-tertiary);
+  list-style: none;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  transition: color 0.2s ease-out;
+}
+
+.prose details.imports-section summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Rotating stick icon - matches ChapterList toggle */
+.prose details.imports-section summary::before {
+  content: '';
+  display: inline-block;
+  width: 0.6em;
+  height: 1.5px;
+  background-color: currentColor;
+  opacity: 0.8;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: rotate(0deg);
+}
+
+.prose details.imports-section[open] summary::before {
+  transform: rotate(90deg);
+  opacity: 0.6;
+}
+
+.prose details.imports-section summary:hover {
+  color: var(--text-secondary);
+}
+
+.prose details.imports-section summary:hover::before {
+  opacity: 1;
+}
+
+.prose details.imports-section .imports-list {
+  list-style: none;
+  margin: 0.5em 0 0 0;
+  padding: 0;
+  animation: importsReveal 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.prose details.imports-section .imports-list li {
+  padding: 0.2em 0;
+  padding-left: 0.75em;
+  border-left: 1px solid var(--border);
+  margin-bottom: 0.15em;
+  opacity: 0;
+  animation: importsItemReveal 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.prose details.imports-section .imports-list li:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.prose details.imports-section .imports-list li:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.prose details.imports-section .imports-list li:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.prose details.imports-section .imports-list li:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+.prose details.imports-section .imports-list li:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+.prose details.imports-section .imports-list li:nth-child(n+6) {
+  animation-delay: 0.3s;
+}
+
+.prose details.imports-section .imports-list li::before {
+  display: none;
+}
+
+@keyframes importsReveal {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes importsItemReveal {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.prose details.imports-section a {
+  color: var(--text-tertiary);
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-underline-offset: 2px;
+  transition: all 0.15s ease-out;
+}
+
+.prose details.imports-section a:hover {
+  color: var(--text-secondary);
+  text-decoration-color: var(--text-tertiary);
+}
+
+.prose details.imports-section code {
+  font-size: 0.7rem;
+  padding: 0.1em 0.3em;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
 }

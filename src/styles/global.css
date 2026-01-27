@@ -6,9 +6,9 @@
   --content-width: 25rem;
 
   /* Typography */
-  --sans: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
-  --serif: Besley, Baskerville, Georgia, 'Times New Roman', Times, serif;
-  --mono: 'SF Mono', SFMono-Regular, monospace;
+  --sans: 'Atkinson Hyperlegible Next', -apple-system, BlinkMacSystemFont, sans-serif;
+  --serif: 'Atkinson Hyperlegible Next', Georgia, 'Times New Roman', Times, serif;
+  --mono: 'Atkinson Hyperlegible Mono', 'SF Mono', SFMono-Regular, monospace;
 
   --font-size-s: 0.8125rem;
   --font-size-m: 0.9375rem;
@@ -31,18 +31,18 @@
   --code-bg: rgba(0, 0, 0, 0.04);
   --mark: #f3ffc4;
 
-  /* Syntax Theme  */
-  --astro-code-foreground: rgba(0, 0, 0, 0.85);
+  /* Syntax Theme (Colorful Light) */
+  --astro-code-foreground: #24292e;
   --astro-code-background: rgba(0, 0, 0, 0.03);
-  --astro-code-token-constant: rgba(0, 0, 0, 0.85);
-  --astro-code-token-string: rgba(0, 0, 0, 0.85);
-  --astro-code-token-comment: rgba(0, 0, 0, 0.35);
-  --astro-code-token-keyword: rgba(0, 0, 0, 0.55);
-  --astro-code-token-parameter: rgba(0, 0, 0, 0.85);
-  --astro-code-token-function: rgba(0, 0, 0, 0.85);
-  --astro-code-token-string-expression: rgba(0, 0, 0, 0.55);
-  --astro-code-token-punctuation: rgba(0, 0, 0, 0.55);
-  --astro-code-token-link: rgba(0, 0, 0, 0.55);
+  --astro-code-token-constant: #005cc5;
+  --astro-code-token-string: #032f62;
+  --astro-code-token-comment: #6a737d;
+  --astro-code-token-keyword: #d73a49;
+  --astro-code-token-parameter: #e36209;
+  --astro-code-token-function: #6f42c1;
+  --astro-code-token-string-expression: #22863a;
+  --astro-code-token-punctuation: #24292e;
+  --astro-code-token-link: #005cc5;
 }
 
 /* Light Mode (Explicit) */
@@ -56,18 +56,18 @@ html.light {
   --code-bg: rgba(0, 0, 0, 0.04);
   --mark: #f3ffc4;
 
-  /* Syntax Theme  */
-  --astro-code-foreground: rgba(0, 0, 0, 0.85);
+  /* Syntax Theme (Colorful Light) */
+  --astro-code-foreground: #24292e;
   --astro-code-background: rgba(0, 0, 0, 0.03);
-  --astro-code-token-constant: rgba(0, 0, 0, 0.85);
-  --astro-code-token-string: rgba(0, 0, 0, 0.85);
-  --astro-code-token-comment: rgba(0, 0, 0, 0.35);
-  --astro-code-token-keyword: rgba(0, 0, 0, 0.5);
-  --astro-code-token-parameter: rgba(0, 0, 0, 0.85);
-  --astro-code-token-function: rgba(0, 0, 0, 0.85);
-  --astro-code-token-string-expression: rgba(0, 0, 0, 0.55);
-  --astro-code-token-punctuation: rgba(0, 0, 0, 0.55);
-  --astro-code-token-link: rgba(0, 0, 0, 0.55);
+  --astro-code-token-constant: #005cc5;
+  --astro-code-token-string: #032f62;
+  --astro-code-token-comment: #6a737d;
+  --astro-code-token-keyword: #d73a49;
+  --astro-code-token-parameter: #e36209;
+  --astro-code-token-function: #6f42c1;
+  --astro-code-token-string-expression: #22863a;
+  --astro-code-token-punctuation: #24292e;
+  --astro-code-token-link: #005cc5;
 }
 
 /* Dark Mode (Explicit) */
@@ -81,18 +81,18 @@ html.dark {
   --code-bg: rgba(255, 255, 255, 0.04);
   --mark: #545b37;
 
-  /* Syntax Theme  */
-  --astro-code-foreground: rgba(255, 255, 255, 0.9);
+  /* Syntax Theme (Colorful Dark) */
+  --astro-code-foreground: #e1e4e8;
   --astro-code-background: rgba(255, 255, 255, 0.03);
-  --astro-code-token-constant: rgba(255, 255, 255, 0.9);
-  --astro-code-token-string: rgba(255, 255, 255, 0.9);
-  --astro-code-token-comment: rgba(255, 255, 255, 0.35);
-  --astro-code-token-keyword: rgba(255, 255, 255, 0.55);
-  --astro-code-token-parameter: rgba(255, 255, 255, 0.9);
-  --astro-code-token-function: rgba(255, 255, 255, 0.9);
-  --astro-code-token-string-expression: rgba(255, 255, 255, 0.55);
-  --astro-code-token-punctuation: rgba(255, 255, 255, 0.55);
-  --astro-code-token-link: rgba(255, 255, 255, 0.55);
+  --astro-code-token-constant: #79b8ff;
+  --astro-code-token-string: #9ecbff;
+  --astro-code-token-comment: #6a737d;
+  --astro-code-token-keyword: #f97583;
+  --astro-code-token-parameter: #ffab70;
+  --astro-code-token-function: #b392f0;
+  --astro-code-token-string-expression: #85e89d;
+  --astro-code-token-punctuation: #e1e4e8;
+  --astro-code-token-link: #79b8ff;
 }
 
 html {
