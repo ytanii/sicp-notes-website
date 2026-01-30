@@ -12,6 +12,8 @@ import rehypeCleanup from './src/plugins/rehype-cleanup.mjs'
 import rehypeImageProcessor from './src/plugins/rehype-image-processor.mjs'
 import rehypeCopyCode from './src/plugins/rehype-copy-code.mjs'
 import remarkTOC from './src/plugins/remark-toc.mjs'
+import { transformerTextbook } from './src/plugins/shiki-transformer-textbook.mjs'
+import { rehypeTextbookInline } from './src/plugins/rehype-textbook-inline.mjs'
 import { themeConfig } from './src/config'
 import { imageConfig } from './src/utils/image-config'
 import path from 'path'
@@ -29,10 +31,11 @@ export default defineConfig({
   markdown: {
     shikiConfig: {
       theme: 'css-variables',
-      wrap: false
+      wrap: false,
+      transformers: [transformerTextbook()]
     },
     remarkPlugins: [remarkMath, remarkDirective, remarkEmbeddedMedia, remarkReadingTime, remarkTOC],
-    rehypePlugins: [rehypeKatex, rehypeCleanup, rehypeImageProcessor, rehypeCopyCode]
+    rehypePlugins: [rehypeKatex, rehypeCleanup, rehypeImageProcessor, rehypeCopyCode, rehypeTextbookInline]
   },
   integrations: [
     playformInline({

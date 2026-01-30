@@ -27,7 +27,7 @@ const GridBackground: React.FC = () => {
         const NUM_BEAMS = 15; // Fewer beams total
         const BEAM_SPEED = 1.6; // Slightly faster for flow
         const WORM_LENGTH = 400;
-        const GLOW_RADIUS = 500;
+        const GLOW_RADIUS = 300;
 
         // Shared occupancy map to prevent intersections
         // Tracks which grid segments are occupied: "x1,y1-x2,y2"

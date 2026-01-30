@@ -37,7 +37,9 @@
   font-size: 1.25rem;
   font-weight: var(--font-weight-bold);
   line-height: 1.45;
-  margin: 1.75em 0 1.25rem 0;
+  margin: 1.75em 0 1.125rem 0;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .prose h3 {
@@ -216,9 +218,10 @@ html.dark .prose img[src*='.svg'] {
 
 /* Blockquotes */
 .prose blockquote {
-  border-left: 2px solid var(--border);
-  margin: 0 0 1.75em 0.125em;
-  padding: 0 0 0 1.375em;
+  background: var(--border);
+  border-left: 4px solid var(--text-secondary);
+  margin: 2em 0;
+  padding: 1.25em 1.5em;
   text-align: left;
 }
 
