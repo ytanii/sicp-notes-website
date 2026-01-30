@@ -4,6 +4,7 @@ import { ClientRouter } from 'astro:transitions'
 import ThemeManager from '@/components/ui/ThemeManager.astro'
 import FaviconThemeSwitcher from '@/components/ui/FaviconThemeSwitcher.astro'
 import TransitionWrapper from '@/components/layout/TransitionWrapper.astro'
+import GridBackground from '@/components/react/GridBackground'
 import type { LayoutProps } from '@/types'
 
 type Props = LayoutProps
@@ -31,6 +32,7 @@ const finalWidth = shouldUseCustomWidth ? `${widthValue}rem` : '25rem'
     `}
   >
     <FaviconThemeSwitcher />
+    <GridBackground client:idle />
 
     {
       fadeAnimation ? (

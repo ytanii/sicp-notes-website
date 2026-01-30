@@ -124,12 +124,13 @@ html {
 }
 
 body {
+  background-color: var(--bg);
   font-family: var(--sans);
   font-feature-settings: 'ss03' 1;
   font-size: var(--font-size-m);
   line-height: 1.75;
   color: var(--text-primary);
-  margin: 0;
+  margin: 0 auto;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
