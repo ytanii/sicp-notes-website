@@ -93,9 +93,9 @@ const GridBackground: React.FC = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             const isDark = document.documentElement.classList.contains('dark');
-            const colorBase = isDark ? '150, 150, 150' : '100, 100, 100';
-            const gridOpacityBase = isDark ? 0.08 : 0.15;
-            const beamOpacityBase = isDark ? 0.25 : 0.4;
+            const colorBase = isDark ? '180, 180, 180' : '100, 100, 100';
+            const gridOpacityBase = isDark ? 0.12 : 0.15;
+            const beamOpacityBase = isDark ? 0.35 : 0.4;
 
             const cx = cursorRef.current.x;
             const cy = cursorRef.current.y;
