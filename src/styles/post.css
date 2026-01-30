@@ -547,8 +547,8 @@ html.dark .prose img[src*='.svg'] {
 .prose pre>code {
   font-family: var(--mono);
   font-feature-settings:
-    'liga' 0,
-    'calt' 0;
+    'liga' 1,
+    'calt' 1;
   display: block;
   white-space: pre;
   word-break: normal;
