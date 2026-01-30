@@ -6,9 +6,9 @@
   --content-width: 25rem;
 
   /* Typography */
-  --sans: 'Atkinson Hyperlegible Next', -apple-system, BlinkMacSystemFont, sans-serif;
-  --serif: 'Atkinson Hyperlegible Next', Georgia, 'Times New Roman', Times, serif;
-  --mono: 'Atkinson Hyperlegible Mono', 'SF Mono', SFMono-Regular, monospace;
+  --sans: 'Berkeley Mono', -apple-system, BlinkMacSystemFont, sans-serif;
+  --serif: 'Berkeley Mono', Georgia, 'Times New Roman', Times, serif;
+  --mono: 'Berkeley Mono', 'Atkinson Hyperlegible Mono', 'SF Mono', SFMono-Regular, monospace;
 
   --font-size-s: 0.8125rem;
   --font-size-m: 0.9375rem;
