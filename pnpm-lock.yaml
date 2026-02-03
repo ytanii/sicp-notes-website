@@ -29,6 +29,9 @@ importers:
       astro-og-canvas:
         specifier: ^0.10.0
         version: 0.10.0(astro@5.16.11(@netlify/blobs@10.5.0)(@types/node@25.0.9)(jiti@2.6.1)(rollup@4.55.1)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.8.2))
+      canvaskit-wasm:
+        specifier: ^0.40.0
+        version: 0.40.0
       feed:
         specifier: ^5.2.0
         version: 5.2.0
