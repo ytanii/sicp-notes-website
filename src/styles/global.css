@@ -6,9 +6,10 @@
   --content-width: 25rem;
 
   /* Typography */
-  --sans: 'Berkeley Mono', -apple-system, BlinkMacSystemFont, sans-serif;
-  --serif: 'Berkeley Mono', Georgia, 'Times New Roman', Times, serif;
-  --mono: 'Berkeley Mono Code', 'Berkeley Mono', 'SF Mono', SFMono-Regular, monospace;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --serif: 'Besley', Georgia, 'Times New Roman', Times, serif;
+  --heading: 'acumin-pro', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono: 'Berkeley Mono', 'SF Mono', SFMono-Regular, ui-monospace, monospace;
 
   --font-size-s: 0.9375rem;
   --font-size-m: 1.0625rem;

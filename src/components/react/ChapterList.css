@@ -90,6 +90,7 @@
 
 .chapter-title {
     font-weight: 500;
+    font-family: var(--heading);
 }
 
 /* Tree Structure Wrapper */
@@ -217,6 +218,7 @@
 .section-title {
     font-weight: 400;
     white-space: normal;
+    font-family: var(--heading);
 }
 
 /* Exercises */
