@@ -13,7 +13,7 @@ const { posts } = Astro.props as PostListProps
         <a href={`/${post.id}/`}>
           <div class={`post-item ${!themeConfig.date.dateOnRight ? 'date-left' : ''}`}>
             {!themeConfig.date.dateOnRight && (
-              <p class="date font-features">
+              <p class="date">
                 <FormattedDate date={post.data.pubDate} context="list" />
               </p>
             )}
@@ -22,7 +22,7 @@ const { posts } = Astro.props as PostListProps
               <div class={themeConfig.general.postListDottedDivider ? 'dotted-divider' : 'divider'} />
             )}
             {themeConfig.date.dateOnRight && (
-              <p class="date font-features">
+              <p class="date">
                 <FormattedDate date={post.data.pubDate} context="list" />
               </p>
             )}
