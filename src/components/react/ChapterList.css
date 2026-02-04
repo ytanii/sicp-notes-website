@@ -110,8 +110,72 @@
     width: 1.5px;
     height: 100%;
     background-color: var(--border);
-    transform: translateX(-50%);
+    transform: translateX(-50%) scaleY(0);
+    transform-origin: top;
     opacity: 0.5;
+    overflow: hidden;
+}
+
+.chapter-item.open .tree-trunk {
+    animation: trunk-draw 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.tree-trunk::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 40%;
+    background: linear-gradient(to bottom, transparent, var(--text-tertiary), transparent);
+    opacity: 0;
+    transform: translateY(0);
+}
+
+.chapter-item.open:hover .tree-trunk::after,
+.chapter-item.open:focus-within .tree-trunk::after {
+    opacity: 0.6;
+    animation: trunk-scan 2.2s linear infinite;
+}
+
+@keyframes trunk-scan {
+    0% {
+        opacity: 0;
+        transform: translateY(-35%);
+    }
+    10% {
+        opacity: 0.6;
+    }
+    90% {
+        opacity: 0.6;
+        transform: translateY(160%);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(190%);
+    }
+}
+
+@keyframes trunk-draw {
+    from {
+        transform: translateX(-50%) scaleY(0);
+    }
+    to {
+        transform: translateX(-50%) scaleY(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chapter-item.open .tree-trunk {
+        animation: none;
+        transform: translateX(-50%) scaleY(1);
+    }
+
+    .chapter-item.open:hover .tree-trunk::after,
+    .chapter-item.open:focus-within .tree-trunk::after {
+        animation: none;
+        opacity: 0;
+    }
 }
 
 .section-list {
@@ -136,6 +200,11 @@
     padding-left: 2rem;
     /* Initial padding */
     transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chapter-item.open .section-item {
+    animation: item-reveal 0.3s ease-out both;
+    animation-delay: calc(var(--item-index) * 40ms);
 }
 
 .section-item a {
@@ -249,6 +318,11 @@
 .exercise-chip {
     list-style: none;
     position: relative;
+}
+
+.chapter-item.open .exercise-chip {
+    animation: item-reveal 0.3s ease-out both;
+    animation-delay: calc(120ms + var(--item-index) * 35ms);
 }
 
 /* Connecting line through chips */
@@ -365,5 +439,22 @@
     .exercises-list:has(.exercise-chip:hover) .exercise-chip:hover~.exercise-chip a::after {
         --border-progress: 0deg;
         opacity: 0;
+    }
+}
+
+@keyframes item-reveal {
+    from {
+        transform: translateY(6px);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chapter-item.open .section-item,
+    .chapter-item.open .exercise-chip {
+        animation: none;
+        transform: none;
     }
 }

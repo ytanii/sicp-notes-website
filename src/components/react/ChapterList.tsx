@@ -47,7 +47,7 @@ const ChapterItem: React.FC<{
     const hasContent = hasSections || hasExercises
 
     return (
-        <li className="chapter-item">
+        <li className={`chapter-item ${isOpen ? 'open' : ''}`}>
             <div className="chapter-summary-wrapper">
                 {hasContent ? (
                     <button
@@ -81,8 +81,12 @@ const ChapterItem: React.FC<{
                             <div className="tree-trunk" />
                             {hasSections && (
                                 <ul className="section-list">
-                                    {sections.map((section) => (
-                                        <li key={section.id} className="section-item">
+                                    {sections.map((section, index) => (
+                                        <li
+                                            key={section.id}
+                                            className="section-item"
+                                            style={{ '--item-index': index } as React.CSSProperties}
+                                        >
                                             <a href={`/${section.id.replace(/\.mdx?$/, '')}/`}>
                                                 <span className="section-number">
                                                     {chapter.data.chapter}.{section.data.section}
@@ -98,8 +102,12 @@ const ChapterItem: React.FC<{
                                 <div className="exercises-wrapper">
                                     <div className="exercises-header">Exercises</div>
                                     <ul className="exercises-list">
-                                        {exercises.map((exercise) => (
-                                            <li key={exercise.id} className="exercise-chip">
+                                        {exercises.map((exercise, index) => (
+                                            <li
+                                                key={exercise.id}
+                                                className="exercise-chip"
+                                                style={{ '--item-index': index } as React.CSSProperties}
+                                            >
                                                 <a href={`/${exercise.id.replace(/\.mdx?$/, '')}/`} title={exercise.data.title}>
                                                     {exercise.data.section ? `${chapter.data.chapter}.${exercise.data.section}` : exercise.data.title}
                                                 </a>
@@ -150,4 +158,3 @@ export const ChapterList: React.FC<ChapterListProps> = ({ chapters, sectionsByCh
         </ul>
     )
 }
-

@@ -541,11 +541,43 @@ html.dark .prose img[src*='.svg'] {
   padding: 1.25em 1.5em;
   margin: 2em 0;
   overflow-x: auto;
+  position: relative;
+}
+
+.prose pre .code-outline {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.prose pre .code-outline-rect {
+  fill: none;
+  stroke: var(--text-tertiary);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  transition: stroke-dashoffset 0.7s ease-out, opacity 0.2s ease-out;
+}
+
+.prose pre:hover .code-outline-rect {
+  stroke-dashoffset: 0;
+  opacity: 0.75;
 }
 
 @media (max-width: 768px) {
   .prose pre {
     padding: 1em 1.25em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prose pre .code-outline-rect {
+    transition: none;
   }
 }
 
