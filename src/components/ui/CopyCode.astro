@@ -3,8 +3,6 @@ import { themeConfig } from '@/config'
 ---
 
 <script define:vars={{ copyCode: themeConfig.post.copyCode }}>
-  const outlineObservers = new WeakMap()
-
   function initCopyCode() {
     const copyIcon = `
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" fill="currentColor">
@@ -160,70 +158,9 @@ import { themeConfig } from '@/config'
     })
   }
 
-  function initCodeOutlines() {
-    const codeBlocks = document.querySelectorAll('.prose pre')
-
-    codeBlocks.forEach((pre) => {
-      if (pre.dataset.outlineInit) return
-      pre.dataset.outlineInit = '1'
-
-      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-      svg.classList.add('code-outline')
-      svg.setAttribute('aria-hidden', 'true')
-      svg.setAttribute('focusable', 'false')
-
-      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-      rect.classList.add('code-outline-rect')
-      rect.setAttribute('pathLength', '1')
-      rect.setAttribute('rx', '8')
-      rect.setAttribute('ry', '8')
-
-      svg.appendChild(rect)
-      pre.appendChild(svg)
-
-      const updateSize = () => {
-        const { width, height } = pre.getBoundingClientRect()
-        const safeWidth = Math.max(1, Math.floor(width))
-        const safeHeight = Math.max(1, Math.floor(height))
-        svg.setAttribute('viewBox', `0 0 ${safeWidth} ${safeHeight}`)
-        rect.setAttribute('x', '0.5')
-        rect.setAttribute('y', '0.5')
-        rect.setAttribute('width', String(Math.max(0, safeWidth - 1)))
-        rect.setAttribute('height', String(Math.max(0, safeHeight - 1)))
-      }
-
-      const syncScroll = () => {
-        svg.style.transform = `translate(${pre.scrollLeft}px, ${pre.scrollTop}px)`
-      }
-
-      updateSize()
-      syncScroll()
-
-      if (typeof ResizeObserver !== 'undefined') {
-        const observer = new ResizeObserver(updateSize)
-        observer.observe(pre)
-        outlineObservers.set(pre, observer)
-      }
-
-      let rafId = 0
-      pre.addEventListener(
-        'scroll',
-        () => {
-          if (rafId) return
-          rafId = requestAnimationFrame(() => {
-            syncScroll()
-            rafId = 0
-          })
-        },
-        { passive: true }
-      )
-    })
-  }
-
   // Use only astro:page-load as it fires on initial load and navigation
   document.addEventListener('astro:page-load', () => {
     initCopyCode()
-    initCodeOutlines()
   })
 </script>
 

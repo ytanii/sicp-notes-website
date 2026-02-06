@@ -38,13 +38,14 @@ const ChapterItem: React.FC<{
     chapter: Chapter
     sections: Section[]
     exercises: Exercise[]
-    initiallyOpen: boolean
     onToggle: (e: React.MouseEvent) => void
     isOpen: boolean
 }> = ({ chapter, sections, exercises, onToggle, isOpen }) => {
     const hasSections = sections.length > 0
     const hasExercises = exercises.length > 0
     const hasContent = hasSections || hasExercises
+    const chapterKey = `${chapter.data.chapter ?? chapter.id}`
+    const contentId = `chapter-${chapterKey.replace(/[^a-zA-Z0-9-_]/g, '-')}-content`
 
     return (
         <li className={`chapter-item ${isOpen ? 'open' : ''}`}>
@@ -53,6 +54,9 @@ const ChapterItem: React.FC<{
                     <button
                         className={`chapter-toggle ${isOpen ? 'open' : ''}`}
                         onClick={onToggle}
+                        type="button"
+                        aria-expanded={isOpen}
+                        aria-controls={contentId}
                         aria-label={isOpen ? "Collapse chapter" : "Expand chapter"}
                     />
                 ) : (
@@ -71,21 +75,21 @@ const ChapterItem: React.FC<{
             <AnimatePresence initial={false}>
                 {isOpen && hasContent && (
                     <motion.div
+                        id={contentId}
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                        transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
                         style={{ overflow: 'hidden' }}
                     >
                         <div className="section-list-wrapper">
                             <div className="tree-trunk" />
                             {hasSections && (
                                 <ul className="section-list">
-                                    {sections.map((section, index) => (
+                                    {sections.map((section) => (
                                         <li
                                             key={section.id}
                                             className="section-item"
-                                            style={{ '--item-index': index } as React.CSSProperties}
                                         >
                                             <a href={`/${section.id.replace(/\.mdx?$/, '')}/`}>
                                                 <span className="section-number">
@@ -102,12 +106,11 @@ const ChapterItem: React.FC<{
                                 <div className="exercises-wrapper">
                                     <div className="exercises-header">Exercises</div>
                                     <ul className="exercises-list">
-                                        {exercises.map((exercise, index) => (
-                                            <li
-                                                key={exercise.id}
-                                                className="exercise-chip"
-                                                style={{ '--item-index': index } as React.CSSProperties}
-                                            >
+                                        {exercises.map((exercise) => (
+                                        <li
+                                            key={exercise.id}
+                                            className="exercise-chip"
+                                        >
                                                 <a href={`/${exercise.id.replace(/\.mdx?$/, '')}/`} title={exercise.data.title}>
                                                     {exercise.data.section ? `${chapter.data.chapter}.${exercise.data.section}` : exercise.data.title}
                                                 </a>
@@ -150,7 +153,6 @@ export const ChapterList: React.FC<ChapterListProps> = ({ chapters, sectionsByCh
                     chapter={chapter}
                     sections={sectionsByChapter[chapter.data.chapter || 0] || []}
                     exercises={exercisesByChapter[chapter.data.chapter || 0] || []}
-                    initiallyOpen={openChapters[chapter.data.chapter || 0]}
                     isOpen={openChapters[chapter.data.chapter || 0]} // Pass tracked state
                     onToggle={(e) => toggleChapter(chapter.data.chapter || 0, e)}
                 />

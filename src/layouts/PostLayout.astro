@@ -1,7 +1,6 @@
 ---
 import '@/styles/global.css'
 import type { PostLayoutProps } from '@/types'
-import FormattedDate from '@/components/widgets/FormattedDate.astro'
 import FootnoteScroll from '@/components/widgets/FootnoteScroll.astro'
 import BaseHead from '@/components/layout/BaseHead.astro'
 import Footer from '@/components/layout/Footer.astro'
@@ -24,10 +23,11 @@ interface ExtendedPostLayoutProps extends PostLayoutProps {
   section?: number
 }
 
-const { title, pubDate, readingTime, toc, chapter, section } = Astro.props as ExtendedPostLayoutProps
+const { title, readingTime, toc, chapter, section } = Astro.props as ExtendedPostLayoutProps
 
-// Generate display title with automatic numbering
-const displayTitle = chapter ? (section ? `${chapter}.${section} ${title}` : `${chapter} ${title}`) : title
+const displayTitle = title
+const titleNumber = chapter ? (section ? `${chapter}.${section}` : `${chapter}`) : ''
+const titleNumberClass = chapter ? (section ? 'title-number is-section' : 'title-number is-chapter') : ''
 
 const postSlug = Astro.url.pathname.split('/').filter(Boolean).pop() || ''
 const ogImage = `/open-graph/${postSlug}.png`
@@ -51,18 +51,13 @@ const ogImage = `/open-graph/${postSlug}.png`
         <BackButton />
         {themeConfig.post.toc && <TableOfContents toc={toc} />}
         <div class="title">
-          <h1>{displayTitle}</h1>
-          <div class="date">
-            <FormattedDate date={pubDate} context="post" />
-            {
-              themeConfig.post.readingTime && readingTime && (
-                <span class="reading-time">
-                  <span class="separator">·</span>
-                  {readingTime.text}
-                </span>
-              )
-            }
+          <div class="title-row">
+            <h1>{displayTitle}</h1>
+            {titleNumber && <div class={titleNumberClass}>{titleNumber}</div>}
           </div>
+          {themeConfig.post.readingTime && readingTime && (
+            <div class="reading-time">{readingTime.text}</div>
+          )}
         </div>
         <article class="content">
           <slot />

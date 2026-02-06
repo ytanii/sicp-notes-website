@@ -1,29 +1,29 @@
-@property --border-progress {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-}
-
 .chapter-list {
     padding: 0;
     margin: 0;
     list-style-type: none;
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: 0.25rem;
 }
 
 .chapter-item {
     display: flex;
     flex-direction: column;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.chapter-item:last-child {
+    border-bottom: none;
 }
 
 .chapter-summary-wrapper {
     display: flex;
     align-items: center;
-    padding: 0.5rem 0;
+    padding: 0.4rem 0;
     position: relative;
-    gap: 0.5rem;
+    gap: 0.65rem;
 }
 
 /* Toggle Button */
@@ -52,11 +52,11 @@
 .chapter-toggle::after {
     content: '';
     position: absolute;
-    width: 0.8rem;
-    height: 1.5px;
+    width: 0.7rem;
+    height: 1px;
     background-color: var(--text-secondary);
     opacity: 0.8;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
     transform: rotate(0deg);
     /* Horizontal (Closed) */
 }
@@ -75,7 +75,7 @@
     display: inline-flex;
     align-items: center;
     gap: 1rem;
-    transition: color 0.2s ease-out;
+    transition: color var(--motion-fast) var(--motion-ease);
     flex-grow: 1;
 }
 
@@ -95,9 +95,9 @@
 
 /* Tree Structure Wrapper */
 .section-list-wrapper {
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.35rem 0;
     position: relative;
-    padding-left: 0.75rem;
+    padding-left: 1rem;
     /* Center trunk under the toggle (1.5rem / 2) */
 }
 
@@ -105,77 +105,13 @@
 .tree-trunk {
     position: absolute;
     top: 0;
-    left: 0.75rem;
+    left: 1rem;
     /* Center of the toggle */
     width: 1.5px;
     height: 100%;
     background-color: var(--border);
-    transform: translateX(-50%) scaleY(0);
-    transform-origin: top;
-    opacity: 0.5;
-    overflow: hidden;
-}
-
-.chapter-item.open .tree-trunk {
-    animation: trunk-draw 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
-}
-
-.tree-trunk::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 40%;
-    background: linear-gradient(to bottom, transparent, var(--text-tertiary), transparent);
-    opacity: 0;
-    transform: translateY(0);
-}
-
-.chapter-item.open:hover .tree-trunk::after,
-.chapter-item.open:focus-within .tree-trunk::after {
-    opacity: 0.6;
-    animation: trunk-scan 2.2s linear infinite;
-}
-
-@keyframes trunk-scan {
-    0% {
-        opacity: 0;
-        transform: translateY(-35%);
-    }
-    10% {
-        opacity: 0.6;
-    }
-    90% {
-        opacity: 0.6;
-        transform: translateY(160%);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(190%);
-    }
-}
-
-@keyframes trunk-draw {
-    from {
-        transform: translateX(-50%) scaleY(0);
-    }
-    to {
-        transform: translateX(-50%) scaleY(1);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .chapter-item.open .tree-trunk {
-        animation: none;
-        transform: translateX(-50%) scaleY(1);
-    }
-
-    .chapter-item.open:hover .tree-trunk::after,
-    .chapter-item.open:focus-within .tree-trunk::after {
-        animation: none;
-        opacity: 0;
-    }
+    transform: translateX(-50%);
+    opacity: 0.35;
 }
 
 .section-list {
@@ -185,26 +121,9 @@
     position: relative;
 }
 
-.section-list:hover .section-item {
-    opacity: 0.4;
-    filter: grayscale(100%);
-}
-
-.section-list:hover .section-item:hover {
-    opacity: 1;
-    filter: grayscale(0%);
-}
-
 .section-item {
     position: relative;
-    padding-left: 2rem;
-    /* Initial padding */
-    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.chapter-item.open .section-item {
-    animation: item-reveal 0.3s ease-out both;
-    animation-delay: calc(var(--item-index) * 40ms);
+    padding-left: 1.9rem;
 }
 
 .section-item a {
@@ -214,7 +133,7 @@
     align-items: center;
     gap: 1rem;
     padding: 0.2rem 0;
-    transition: color 0.2s ease-out;
+    transition: color var(--motion-fast) var(--motion-ease);
     position: relative;
 }
 
@@ -238,12 +157,11 @@
     left: 0;
     width: 1.75rem;
     /* Gap between trunk and text */
-    height: 1.5px;
+    height: 1px;
     background-color: var(--text-secondary);
     transform-origin: left;
-    transform: scaleX(0);
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0s;
-    opacity: 0.5;
+    transform: scaleX(1);
+    opacity: 0.25;
     z-index: 1;
 }
 
@@ -263,16 +181,12 @@
         color: var(--text-secondary);
     }
 
-    /* Branch Expansion on Section Hover */
-    .section-item:hover::before {
-        transform: scaleX(1);
-        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* Retract when not hovered - default state handles this */
-
     .chapter-toggle:hover::after {
         opacity: 1;
+    }
+
+    .section-item a:hover {
+        color: var(--text-secondary);
     }
 }
 
@@ -292,61 +206,33 @@
 
 /* Exercises */
 .exercises-wrapper {
-    margin-top: 0.25rem;
-    padding-left: 2rem;
+    margin-top: 0.35rem;
+    padding-left: 1.9rem;
     position: relative;
 }
 
 /* Branch for Exercises Header? Maybe later if requested. */
 .exercises-header {
-    font-size: 0.75rem;
-    font-weight: 500;
+    font-size: 0.7rem;
+    font-weight: 600;
     color: var(--text-tertiary);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.35rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .exercises-list {
     padding: 0;
-    margin-top: 0.5rem;
+    margin-top: 0.4rem;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    padding-bottom: 0.5rem;
+    gap: 0.4rem;
+    padding-bottom: 0.35rem;
     position: relative;
 }
 
 .exercise-chip {
     list-style: none;
-    position: relative;
-}
-
-.chapter-item.open .exercise-chip {
-    animation: item-reveal 0.3s ease-out both;
-    animation-delay: calc(120ms + var(--item-index) * 35ms);
-}
-
-/* Connecting line through chips */
-.exercise-chip::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    right: 100%;
-    width: calc(0.5rem + 3px);
-    /* Increased overlap to close gap */
-    height: 1.5px;
-    margin-top: -0.75px;
-    background-color: var(--text-secondary);
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 0.5;
-    z-index: 0;
-}
-
-/* First chip connects to the tree trunk */
-.exercise-chip:first-child::before {
-    width: 2rem;
-    right: 100%;
 }
 
 .exercise-chip a {
@@ -357,104 +243,24 @@
     /* Increased from 0.75rem */
     font-weight: 500;
     font-variant-numeric: tabular-nums;
-    color: var(--text-tertiary);
+    color: var(--text-secondary);
     text-decoration: none;
     padding: 0.25rem 0.9rem;
     /* Increased from 0.15rem 0.6rem */
-    border: 1px solid transparent;
+    border: 1px solid var(--border);
     border-radius: 999px;
-    transition: all 0.2s ease;
-    background-color: var(--bg);
-    /* Solid background to cover line ends */
+    transition: color var(--motion-fast) var(--motion-ease),
+        border-color var(--motion-fast) var(--motion-ease),
+        background-color var(--motion-fast) var(--motion-ease);
+    background-color: var(--surface);
     position: relative;
-    z-index: 10;
-}
-
-/* Border draws in with conic gradient animation */
-.exercise-chip a::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 999px;
-    padding: 1.5px;
-    /* Matches the line height */
-    background: conic-gradient(from -90deg, var(--text-secondary) 0deg, var(--text-secondary) var(--border-progress), transparent var(--border-progress));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: --border-progress 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.15s, opacity 0.3s ease 0.15s;
-    pointer-events: none;
+    z-index: 1;
 }
 
 @media (hover: hover) and (pointer: fine) {
     .exercise-chip a:hover {
         color: var(--text-primary);
-        background-color: var(--bg);
-    }
-
-    .exercise-chip a:hover::after {
-        --border-progress: 360deg;
-        opacity: 0.8;
-    }
-
-    /* Show connecting line on hover - extends through previous chips */
-    .exercise-chip:hover::before {
-        transform: scaleX(1);
-    }
-
-    /* When a chip is hovered, show lines for all previous siblings */
-    .exercise-chip:hover~.exercise-chip::before {
-        transform: scaleX(0);
-    }
-
-    /* Cascade: all chips before the hovered one show their lines */
-    .exercises-list:has(.exercise-chip:hover) .exercise-chip:not(:hover)::before {
-        transform: scaleX(1);
-    }
-
-    /* But only up to the hovered chip */
-    .exercises-list:has(.exercise-chip:hover) .exercise-chip:hover~.exercise-chip::before {
-        transform: scaleX(0);
-    }
-
-    /* Chips before the hovered one also get their border drawn */
-    .exercises-list:has(.exercise-chip:hover) .exercise-chip:not(:hover) a::after {
-        --border-progress: 360deg;
-        opacity: 0.8;
-        transition-delay: 0s;
-        /* Previous chips draw immediately/faster or same speed? Let's keep distinct delay? */
-        /* Actually, if we hover chip 3, we want line to go 1->2->3. 
-           Chip 1 border should ideally fill, then line 2, then chip 2... 
-           But our line animation is one simultaneous expansion.
-           So borders should probably all draw together after the line passes properly?
-           The generic 0.15s delay works for the immediate hover.
-           For previous chips, maybe we want them to appear "filled" already?
-           Or animate too?
-           Let's stick to the same animation for consistency.
-        */
-    }
-
-    .exercises-list:has(.exercise-chip:hover) .exercise-chip:hover~.exercise-chip a::after {
-        --border-progress: 0deg;
-        opacity: 0;
-    }
-}
-
-@keyframes item-reveal {
-    from {
-        transform: translateY(6px);
-    }
-    to {
-        transform: translateY(0);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .chapter-item.open .section-item,
-    .chapter-item.open .exercise-chip {
-        animation: none;
-        transform: none;
+        background-color: var(--surface-strong);
+        border-color: var(--text-tertiary);
     }
 }

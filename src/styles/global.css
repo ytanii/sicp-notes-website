@@ -27,11 +27,23 @@
   --spacing-s: -0.08em;
   --spacing-m: -0.02em;
 
+  /* Motion */
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --motion-slow: 320ms;
+  --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Surface & Background Tints */
+  --surface: rgba(0, 0, 0, 0.03);
+  --surface-strong: rgba(0, 0, 0, 0.06);
+  --bg-tint: rgba(0, 0, 0, 0.035);
+
   /* Light Mode Colors (Default) */
   --bg: #ffffff;
   --text-primary: rgba(0, 0, 0, 0.85);
   --text-secondary: rgba(0, 0, 0, 0.4);
   --text-tertiary: rgba(0, 0, 0, 0.24);
+  --primary: var(--text-primary);
   --border: rgba(0, 0, 0, 0.1);
   --selection: rgba(0, 0, 0, 0.08);
   --code-bg: rgba(0, 0, 0, 0.04);
@@ -57,10 +69,14 @@ html.light {
   --text-primary: rgba(0, 0, 0, 0.85);
   --text-secondary: rgba(0, 0, 0, 0.4);
   --text-tertiary: rgba(0, 0, 0, 0.24);
+  --primary: var(--text-primary);
   --border: rgba(0, 0, 0, 0.1);
   --selection: rgba(0, 0, 0, 0.08);
   --code-bg: rgba(0, 0, 0, 0.04);
   --mark: #f3ffc4;
+  --surface: rgba(0, 0, 0, 0.03);
+  --surface-strong: rgba(0, 0, 0, 0.06);
+  --bg-tint: rgba(0, 0, 0, 0.035);
 
   /* Syntax Theme (Colorful Light) */
   --astro-code-foreground: #24292e;
@@ -82,10 +98,14 @@ html.dark {
   --text-primary: rgba(255, 255, 255, 0.9);
   --text-secondary: rgba(255, 255, 255, 0.4);
   --text-tertiary: rgba(255, 255, 255, 0.24);
+  --primary: var(--text-primary);
   --border: rgba(255, 255, 255, 0.1);
   --selection: rgba(255, 255, 255, 0.08);
   --code-bg: rgba(255, 255, 255, 0.04);
   --mark: #545b37;
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-strong: rgba(255, 255, 255, 0.08);
+  --bg-tint: rgba(255, 255, 255, 0.05);
 
   /* Syntax Theme (Colorful Dark) */
   --astro-code-foreground: #e1e4e8;
@@ -103,11 +123,14 @@ html.dark {
 
 html {
   background-color: var(--bg);
+  background-image: radial-gradient(1000px 520px at 12% -18%, var(--bg-tint), transparent 60%),
+    radial-gradient(900px 480px at 88% -14%, var(--bg-tint), transparent 60%);
+  background-attachment: fixed;
   scroll-behavior: smooth;
   scrollbar-gutter: stable;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
-  transition: background-color 0.2s ease-out;
+  transition: background-color var(--motion-base) var(--motion-ease);
 }
 
 /* Prevent anchor links from scrolling past target due to fixed header/top padding */
@@ -187,6 +210,8 @@ main {
 
 .date {
   margin: 0;
+  font-size: var(--font-size-s);
+  line-height: 1.4;
   font-weight: var(--font-weight-light);
   color: var(--text-secondary);
   opacity: 0.75;

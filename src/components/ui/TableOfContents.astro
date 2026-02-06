@@ -8,17 +8,12 @@ const { toc = [] }: TOCProps = Astro.props
 <div class="toc-container" id="toc">
   <nav class="toc-nav">
     <ul class="toc-list" id="toc-list">
-      <!-- Back to top link -->
-      <li class="toc-item toc-level-0">
-        <a href="#" class="toc-link toc-title" title="Back to top" data-text="Back to top"> Back to top </a>
-      </li>
-
       <!-- TOC items -->
       {
         toc.map((item) => (
           <li class={`toc-item toc-level-${item.level}`}>
-            <a href={`#${item.id}`} class="toc-link" title={item.text} data-text={item.text}>
-              {item.text}
+            <a href={`#${item.id}`} class="toc-link">
+              <span class="toc-text">{item.text}</span>
             </a>
           </li>
         ))
@@ -26,20 +21,6 @@ const { toc = [] }: TOCProps = Astro.props
     </ul>
   </nav>
 </div>
-
-<!-- SVG overlay for connecting lines -->
-<svg class="toc-connector-svg" id="toc-connector-svg" aria-hidden="true">
-  <defs>
-    <linearGradient id="line-gradient-light" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="rgba(0,0,0,0.15)"></stop>
-      <stop offset="100%" stop-color="rgba(0,0,0,0.08)"></stop>
-    </linearGradient>
-    <linearGradient id="line-gradient-dark" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="rgba(255,255,255,0.15)"></stop>
-      <stop offset="100%" stop-color="rgba(255,255,255,0.08)"></stop>
-    </linearGradient>
-  </defs>
-</svg>
 
 <script
   is:inline
@@ -55,18 +36,10 @@ const { toc = [] }: TOCProps = Astro.props
       container: null,
       links: null,
       headings: null,
-      titleLink: null,
       headingMap: new Map(),
       positions: [],
       scrollTimeout: null,
-      hasContent: false,
-      // Connector state
-      svg: null,
-      currentPath: null,
-      currentEndpoint: null,
-      hoveredLink: null,
-      animationFrame: null,
-      drawAnimation: null
+      hasContent: false
     }
 
     // Initialize DOM elements
@@ -76,8 +49,6 @@ const { toc = [] }: TOCProps = Astro.props
 
       state.links = document.querySelectorAll('.toc-link')
       state.headings = document.querySelectorAll('h1, h2, h3')
-      state.titleLink = document.querySelector('.toc-link.toc-title')
-      state.svg = document.getElementById('toc-connector-svg')
 
       // Build heading map (id -> {link, heading})
       state.headingMap.clear()
@@ -99,8 +70,7 @@ const { toc = [] }: TOCProps = Astro.props
     function checkContent() {
       if (!state.container || !state.links) return
 
-      const tocItems = Array.from(state.links).filter((link) => !link.classList.contains('toc-title'))
-      state.hasContent = tocItems.length > 0
+      state.hasContent = state.links.length > 0
 
       if (!state.hasContent) {
         state.container.style.display = 'none'
@@ -145,221 +115,6 @@ const { toc = [] }: TOCProps = Astro.props
       }
     }
 
-    // Generate rectangular path from TOC item to heading
-    function generateConnectorPath(linkRect, headingRect) {
-      // Start point: RIGHT side of the TOC link (end of horizontal bar)
-      const startX = linkRect.right - 5
-      const startY = linkRect.top + linkRect.height / 2
-
-      // Target point: Default to 40px left of heading
-      // But ensure we always have at least 20px of total horizontal travel (Right -> Down -> Right)
-      let endX = headingRect.left - 40
-      const minEndX = startX + 20
-
-      if (endX < minEndX) {
-        // If space is tight, sacrifice the gap to the heading rather than backtracking
-        // But don't go closer than 10px to the heading
-        endX = Math.max(minEndX, headingRect.left - 10)
-      }
-
-      const endY = headingRect.top + headingRect.height / 2
-
-      // Calculate midpoint for the vertical line
-      const totalWidth = endX - startX
-      // verticalX is midpoint
-      let verticalX = startX + totalWidth / 2
-
-      // Build path using Line commands for clean 90° turns
-      let path = `M ${startX} ${startY}`
-
-      // Horizontal line to vertical channel
-      path += ` L ${verticalX} ${startY}`
-
-      // Vertical line to target height
-      path += ` L ${verticalX} ${endY}`
-
-      // Final horizontal to heading
-      path += ` L ${endX} ${endY}`
-
-      return path
-    }
-
-    // Draw connector line
-    function drawConnector(link) {
-      if (!state.svg || link.classList.contains('toc-title')) {
-        clearConnector()
-        return
-      }
-
-      const href = link.getAttribute('href')
-      if (!href?.startsWith('#')) {
-        clearConnector()
-        return
-      }
-
-      const headingId = href.substring(1)
-      const entry = state.headingMap.get(headingId)
-      if (!entry) {
-        clearConnector()
-        return
-      }
-
-      const linkRect = link.getBoundingClientRect()
-      const headingRect = entry.heading.getBoundingClientRect()
-
-      // Generate the path
-      const pathData = generateConnectorPath(linkRect, headingRect)
-
-      // Create path element if needed
-      if (!state.currentPath) {
-        state.currentPath = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-        state.currentPath.classList.add('connector-path')
-        state.svg.appendChild(state.currentPath)
-      }
-
-      // Create endpoint element if needed
-      if (!state.currentEndpoint) {
-        state.currentEndpoint = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-        state.currentEndpoint.classList.add('connector-endpoint')
-        state.currentEndpoint.setAttribute('width', '6')
-        state.currentEndpoint.setAttribute('height', '6')
-        state.svg.appendChild(state.currentEndpoint)
-      }
-
-      state.currentPath.setAttribute('d', pathData)
-
-      // Position endpoint at the end of the line
-      // endX and endY are calculated in generateConnectorPath but not returned directly
-      // We can extract them from the path string or recalculate.
-      // Easiest is to recalculate slightly or parse. Takes less code to just set it here knowing the logic.
-      // Actually, generateConnectorPath is pure. Let's return the coords from it or just split logic.
-      // Simpler approach: parse the last 'L x y' from pathData.
-      const pathParts = pathData.split(' ')
-      const lastY = pathParts[pathParts.length - 1]
-      const lastX = pathParts[pathParts.length - 2]
-
-      state.currentEndpoint.setAttribute('x', parseFloat(lastX) - 3) // Center the 6px square
-      state.currentEndpoint.setAttribute('y', parseFloat(lastY) - 3)
-
-      // Calculate path length for animation
-      const pathLength = state.currentPath.getTotalLength()
-
-      // Set up for drawing animation
-      state.currentPath.style.strokeDasharray = pathLength + ' ' + pathLength
-      state.currentPath.style.strokeDashoffset = pathLength
-      state.currentPath.style.opacity = '0.5'
-
-      // Reset endpoint opacity
-      state.currentEndpoint.style.opacity = '0'
-
-      // Cancel any existing animation
-      if (state.drawAnimation) {
-        cancelAnimationFrame(state.drawAnimation)
-      }
-
-      // Animate the line drawing
-      // Duration scales with path length for consistent visual speed
-      const pixelsPerSecond = 800
-      const baseDuration = (pathLength / pixelsPerSecond) * 1000
-      const duration = Math.max(300, Math.min(baseDuration, 1200)) // clamp between 300ms and 1200ms
-      const startTime = performance.now()
-
-      function animate(currentTime) {
-        const elapsed = currentTime - startTime
-        const progress = Math.min(elapsed / duration, 1)
-
-        // Easing function (ease-out cubic)
-        const eased = 1 - Math.pow(1 - progress, 3)
-
-        if (state.currentPath) {
-          state.currentPath.style.strokeDashoffset = pathLength * (1 - eased)
-
-          if (progress < 1) {
-            state.drawAnimation = requestAnimationFrame(animate)
-          } else {
-            // Animation done, show endpoint
-            if (state.currentEndpoint) {
-              state.currentEndpoint.style.opacity = '1'
-            }
-          }
-        }
-      }
-
-      state.drawAnimation = requestAnimationFrame(animate)
-    }
-
-    // Clear connector
-    function clearConnector() {
-      if (state.currentPath) {
-        state.currentPath.classList.add('fade-out')
-        const pathToRemove = state.currentPath
-        setTimeout(() => {
-          if (pathToRemove.parentNode) {
-            pathToRemove.parentNode.removeChild(pathToRemove)
-          }
-        }, 200)
-        state.currentPath = null
-      }
-
-      if (state.currentEndpoint) {
-        state.currentEndpoint.classList.add('fade-out')
-        const endpointToRemove = state.currentEndpoint
-        setTimeout(() => {
-          if (endpointToRemove.parentNode) {
-            endpointToRemove.parentNode.removeChild(endpointToRemove)
-          }
-        }, 200)
-        state.currentEndpoint = null
-      }
-    }
-
-    // Update connector position during scroll (if one is active)
-    function updateConnectorPosition() {
-      if (state.hoveredLink && state.currentPath) {
-        const href = state.hoveredLink.getAttribute('href')
-        if (href?.startsWith('#')) {
-          const headingId = href.substring(1)
-          const entry = state.headingMap.get(headingId)
-          if (entry) {
-            const linkRect = state.hoveredLink.getBoundingClientRect()
-            const headingRect = entry.heading.getBoundingClientRect()
-            const pathData = generateConnectorPath(linkRect, headingRect)
-            state.currentPath.setAttribute('d', pathData)
-
-            // Recalculate path length to maintain animation
-            const pathLength = state.currentPath.getTotalLength()
-            state.currentPath.style.strokeDasharray = pathLength
-
-            // Move endpoint
-            if (state.currentEndpoint) {
-              const pathParts = pathData.split(' ')
-              const lastY = pathParts[pathParts.length - 1]
-              const lastX = pathParts[pathParts.length - 2]
-              state.currentEndpoint.setAttribute('x', parseFloat(lastX) - 3)
-              state.currentEndpoint.setAttribute('y', parseFloat(lastY) - 3)
-            }
-          }
-        }
-      }
-    }
-
-    // Handle mouse events for connectors
-    function handleMouseEnter(e) {
-      const link = e.target.closest('.toc-link')
-      if (link && !link.classList.contains('toc-title')) {
-        state.hoveredLink = link
-        drawConnector(link)
-      }
-    }
-
-    function handleMouseLeave(e) {
-      const link = e.target.closest('.toc-link')
-      if (link) {
-        state.hoveredLink = null
-        clearConnector()
-      }
-    }
-
     // Handle click events
     function handleClick(e) {
       const link = e.target.closest('.toc-link')
@@ -367,20 +122,15 @@ const { toc = [] }: TOCProps = Astro.props
 
       e.preventDefault()
 
-      if (link.classList.contains('toc-title')) {
-        window.scrollTo({ top: 0, behavior: 'smooth' })
-        history.pushState(null, null, '#')
-      } else {
-        const href = link.getAttribute('href')
-        if (href?.startsWith('#')) {
-          const target = document.getElementById(href.substring(1))
-          if (target) {
-            const rect = target.getBoundingClientRect()
-            const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-            const offset = rect.top + scrollTop - 96
-            window.scrollTo({ top: offset, behavior: 'smooth' })
-            history.pushState(null, null, href)
-          }
+      const href = link.getAttribute('href')
+      if (href?.startsWith('#')) {
+        const target = document.getElementById(href.substring(1))
+        if (target) {
+          const rect = target.getBoundingClientRect()
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+          const offset = rect.top + scrollTop - 96
+          window.scrollTo({ top: offset, behavior: 'smooth' })
+          history.pushState(null, null, href)
         }
       }
     }
@@ -409,17 +159,9 @@ const { toc = [] }: TOCProps = Astro.props
 
         // Ensure active link is visible in TOC
         if (state.container && state.container.scrollHeight > state.container.clientHeight) {
-          entry.link.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-        }
-      } else if (state.titleLink) {
-        state.titleLink.classList.add('active')
-        if (state.container) {
-          state.container.scrollTo({ top: 0, behavior: 'smooth' })
+          entry.link.scrollIntoView({ behavior: 'auto', block: 'nearest' })
         }
       }
-
-      // Update connector if one is active
-      updateConnectorPosition()
     }
 
     // Initialize
@@ -434,12 +176,6 @@ const { toc = [] }: TOCProps = Astro.props
         if (state.container) {
           state.container.removeEventListener('click', handleClick)
           state.container.addEventListener('click', handleClick)
-
-          // Add hover listeners for connectors
-          state.container.removeEventListener('mouseenter', handleMouseEnter, true)
-          state.container.addEventListener('mouseenter', handleMouseEnter, true)
-          state.container.removeEventListener('mouseleave', handleMouseLeave, true)
-          state.container.addEventListener('mouseleave', handleMouseLeave, true)
         }
 
         updateActive()
@@ -458,11 +194,9 @@ const { toc = [] }: TOCProps = Astro.props
 
     function handleResize() {
       adjustPosition()
-      requestAnimationFrame(cachePositions)
-      // Update connector if one is active
-      if (state.hoveredLink) {
-        updateConnectorPosition()
-      }
+      requestAnimationFrame(() => {
+        cachePositions()
+      })
     }
 
     // Cleanup
@@ -472,27 +206,13 @@ const { toc = [] }: TOCProps = Astro.props
         state.scrollTimeout = null
       }
 
-      if (state.drawAnimation) {
-        cancelAnimationFrame(state.drawAnimation)
-        state.drawAnimation = null
-      }
-
-      clearConnector()
-
       Object.assign(state, {
         container: null,
         links: null,
         headings: null,
-        titleLink: null,
         headingMap: new Map(),
         positions: [],
-        positions: [],
-        hasContent: false,
-        svg: null,
-        currentPath: null,
-        currentEndpoint: null,
-        hoveredLink: null,
-        drawAnimation: null
+        hasContent: false
       })
     }
 
@@ -525,7 +245,7 @@ const { toc = [] }: TOCProps = Astro.props
     position: relative;
     left: -0.175em;
     opacity: 0;
-    transition: opacity 0.2s ease-out;
+    transition: opacity var(--motion-fast) var(--motion-ease);
     display: none;
   }
 
@@ -537,14 +257,25 @@ const { toc = [] }: TOCProps = Astro.props
     padding-left: 1rem;
     z-index: 10;
     left: auto;
-    max-height: calc(100vh - 18rem);
+    max-height: calc(100vh - 16rem);
     overflow-y: auto;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
+    overscroll-behavior: contain;
+    padding-right: 0.35rem;
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: var(--border) transparent;
   }
 
   .toc-container.fixed-position::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
+    width: 6px;
+  }
+
+  .toc-container.fixed-position::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 999px;
+  }
+
+  .toc-container.fixed-position::-webkit-scrollbar-track {
+    background: transparent;
   }
 
   .toc-nav {
@@ -576,65 +307,44 @@ const { toc = [] }: TOCProps = Astro.props
 
   .toc-link {
     display: block;
-    color: transparent;
     text-decoration: none;
     position: relative;
     padding-left: 0;
-    height: 1.125rem;
     width: 100%;
-    min-height: 1rem;
-    font-size: 0;
-    line-height: 1.125rem;
-    text-indent: 2rem;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    transition:
-      color 0.2s ease-out,
-      font-size 0.2s ease-out,
-      text-indent 0.2s ease-out;
+    height: 1.1rem;
+    line-height: 1.1rem;
+    color: transparent;
+    overflow: visible;
+    opacity: 1;
     cursor: pointer;
   }
 
-  .toc-link::after {
-    content: attr(data-text);
-    position: absolute;
-    left: -0.5rem;
-    top: 0;
-    font-family: var(--sans);
-    font-size: var(--font-size-s);
-    letter-spacing: var(--spacing-m);
-    line-height: 1.125rem;
-    color: var(--text-primary);
-    opacity: 0;
-    transition:
-      opacity 0.2s ease-out,
-      left 0.2s ease-out;
-    pointer-events: none;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    max-width: 100%;
-  }
-
-  .toc-link:hover::after {
-    opacity: 1;
-    left: -0.75rem;
-  }
-
-  .toc-level-0 .toc-link:hover::after {
-    opacity: 0;
-  }
-
-  .toc-level-1 .toc-link:hover::before,
-  .toc-level-2 .toc-link:hover::before,
-  .toc-level-3 .toc-link:hover::before {
-    width: 0.75rem;
-    transition: width 0.1s ease-out;
-  }
-
   .toc-link.active {
+    color: transparent;
+  }
+
+  .toc-text {
+    position: absolute;
+    left: 2.1rem;
+    top: 0;
+    max-width: calc(100% - 2.1rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--font-size-s);
+    line-height: 1.1rem;
+    letter-spacing: var(--spacing-m);
     color: var(--text-primary);
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
+    pointer-events: none;
+  }
+
+  .toc-link:hover .toc-text,
+  .toc-link.active .toc-text {
+    opacity: 1;
+    transform: translateX(0);
   }
 
   /* Horizontal line indicators */
@@ -651,7 +361,7 @@ const { toc = [] }: TOCProps = Astro.props
     background-color: var(--text-tertiary);
     transform: translateY(-50%);
     opacity: 0.4;
-    transition: all 0.1s ease-out;
+    transition: opacity var(--motion-fast) var(--motion-ease), background-color var(--motion-fast) var(--motion-ease);
   }
 
   .toc-link:hover::before,
@@ -667,50 +377,4 @@ const { toc = [] }: TOCProps = Astro.props
     }
   }
 
-  /* SVG Connector Styles */
-  .toc-connector-svg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    z-index: -1;
-    overflow: visible;
-  }
-
-  .connector-path {
-    fill: none;
-    stroke: var(--text-tertiary);
-    stroke-width: 1;
-    stroke-linecap: round;
-    stroke-linejoin: miter;
-  }
-
-  .connector-path.fade-out {
-    opacity: 0 !important;
-    transition: opacity 0.15s ease-out;
-  }
-
-  /* Dark mode adjustment */
-  html.dark .connector-path {
-    stroke: var(--text-tertiary);
-  }
-
-  .connector-endpoint {
-    fill: var(--text-secondary);
-    opacity: 1;
-    transition: opacity 0.2s ease-out;
-  }
-
-  .connector-endpoint.fade-out {
-    opacity: 0 !important;
-  }
-
-  /* Hide connector on mobile */
-  @media (max-width: 768px) {
-    .toc-connector-svg {
-      display: none !important;
-    }
-  }
 </style>

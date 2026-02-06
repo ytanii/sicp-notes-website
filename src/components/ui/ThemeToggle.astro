@@ -41,7 +41,7 @@ import { themeConfig } from '@/config'
     height: 1.5rem;
     gap: 0.1875rem;
     color: var(--text-primary);
-    transition: opacity 0.2s ease;
+    transition: opacity var(--motion-fast) var(--motion-ease);
     padding: 0 0 0 0.5rem;
     position: relative;
   }
@@ -49,7 +49,7 @@ import { themeConfig } from '@/config'
   .theme-icon {
     width: 0.4375rem;
     height: 0.4375rem;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform var(--motion-base) var(--motion-ease);
   }
 
   .hollow-circle {

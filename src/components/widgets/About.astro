@@ -32,31 +32,11 @@ const { Content } = hasContent && aboutEntry ? await render(aboutEntry) : { Cont
     color: var(--text-primary);
     display: inline-block;
     transform-origin: left bottom;
-    animation: dropcap-settle 0.9s ease-out both;
-    animation-delay: 120ms;
   }
 
   /* Ensure proper text flow around drop cap */
   .about :global(p:first-of-type) {
     margin-top: 0;
-  }
-
-  @keyframes dropcap-settle {
-    0% {
-      transform: translateY(-4px);
-    }
-    65% {
-      transform: translateY(2px);
-    }
-    100% {
-      transform: translateY(0);
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .about :global(p:first-of-type)::first-letter {
-      animation: none;
-    }
   }
 
 </style>

@@ -7,7 +7,7 @@
 
 /* Main content container */
 .prose {
-  margin-bottom: 8rem;
+  margin-bottom: 6rem;
 }
 
 /* Remove margin-top for the first child */
@@ -17,38 +17,89 @@
 
 /* Post title section */
 .prose .title {
-  margin-bottom: 2.5em;
+  margin-bottom: 2em;
+}
+
+.prose .title-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: baseline;
+  gap: 0.65rem;
 }
 
 .prose .title h1 {
   margin: 0 0 0.375rem 0;
   font-family: var(--heading);
+  font-size: clamp(1.9rem, 2.6vw, 2.4rem);
+  line-height: 1.2;
+  text-wrap: balance;
 }
+
+.prose .title-number {
+  font-family: var(--mono);
+  line-height: 1;
+  color: var(--text-tertiary);
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--spacing-m);
+  transform: translateY(0.14em);
+}
+
+.prose .title-number.is-chapter {
+  font-size: clamp(2.8rem, 6.5vw, 4.8rem);
+}
+
+.prose .title-number.is-section {
+  font-size: clamp(2rem, 4.2vw, 3.2rem);
+}
+
+@media (max-width: 720px) {
+  .prose .title-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .prose .title-number {
+    text-align: left;
+  }
+
+  .prose .title-number.is-chapter {
+    font-size: clamp(2.2rem, 12vw, 3.4rem);
+  }
+
+  .prose .title-number.is-section {
+    font-size: clamp(1.6rem, 8vw, 2.4rem);
+  }
+}
+
 
 /* Headings (h1-h5)
  Adjust size or spacing below if needed. */
 .prose h1 {
-  font-size: 1.5rem;
+  font-size: 1.65rem;
   font-weight: var(--font-weight-bold);
   line-height: 1.35;
   margin: 2.25em 0 1.25rem 0;
   font-family: var(--heading);
+  text-wrap: balance;
 }
 
 .prose h2 {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: var(--font-weight-bold);
   line-height: 1.45;
   margin: 1.75em 0 1.25rem 0;
   font-family: var(--heading);
+  text-wrap: balance;
 }
 
 .prose h3 {
-  font-size: 1.125rem;
+  font-size: 1.15rem;
   font-weight: var(--font-weight-bold);
   line-height: 1.55;
   margin: 1.5em 0 1rem 0;
   font-family: var(--heading);
+  text-wrap: balance;
 }
 
 .prose h4,
@@ -78,7 +129,9 @@
   color: var(--primary);
   text-decoration: underline;
   text-decoration-color: var(--text-tertiary);
-  transition: text-decoration-color 0.2s ease-out;
+  text-underline-offset: 0.12em;
+  text-decoration-thickness: 0.06em;
+  transition: text-decoration-color var(--motion-fast) var(--motion-ease);
 }
 
 .prose a:hover {
@@ -88,8 +141,9 @@
 
 /* Paragraphs */
 .prose p {
-  line-height: 1.75;
-  margin: 1.75em 0;
+  line-height: 1.7;
+  margin: 1.5em 0;
+  text-wrap: pretty;
 }
 
 /* Tables */
@@ -225,6 +279,7 @@ html.dark .prose img[src*='.svg'] {
   margin: 0 0 1.75em 0.125em;
   padding: 0 0 0 1.375em;
   text-align: left;
+  color: var(--text-secondary);
 }
 
 .prose blockquote p {
@@ -243,8 +298,8 @@ html.dark .prose img[src*='.svg'] {
   list-style-type: none;
   padding-left: 0;
   margin-left: 1rem;
-  margin-bottom: 1.75em;
-  line-height: 1.75;
+  margin-bottom: 1.5em;
+  line-height: 1.7;
 }
 
 .prose ul ul {
@@ -257,6 +312,7 @@ html.dark .prose img[src*='.svg'] {
   position: relative;
   padding-left: 0.125rem;
   margin-bottom: 0.5em;
+  text-wrap: pretty;
 }
 
 .prose ul li:last-child {
@@ -295,7 +351,7 @@ html.dark .prose img[src*='.svg'] {
   list-style-position: outside;
   padding-left: 0;
   margin-left: 1.25rem;
-  margin-bottom: 1.75em;
+  margin-bottom: 1.5em;
   counter-reset: item;
 }
 
@@ -306,6 +362,7 @@ html.dark .prose img[src*='.svg'] {
   margin-bottom: 0.5em;
   list-style: none;
   /* Ensure no default list styling */
+  text-wrap: pretty;
 }
 
 /* Specifically prevent bullets on ol li */
@@ -349,7 +406,6 @@ html.dark .prose img[src*='.svg'] {
 .prose ul.contains-task-list {
   list-style: none;
   margin-left: 0;
-  white-space: nowrap;
 }
 
 .prose ul.contains-task-list li::before {
@@ -404,7 +460,6 @@ html.dark .prose img[src*='.svg'] {
   display: inline;
   margin-left: 0;
   line-height: 1.75;
-  white-space: nowrap;
 }
 
 /* .prose ul.contains-task-list li.task-list-item:has(input[type='checkbox']:checked) {
@@ -537,6 +592,7 @@ html.dark .prose img[src*='.svg'] {
 /* Code blocks */
 .prose pre {
   background-color: var(--astro-code-background);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1.25em 1.5em;
   margin: 2em 0;
@@ -544,40 +600,9 @@ html.dark .prose img[src*='.svg'] {
   position: relative;
 }
 
-.prose pre .code-outline {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  overflow: visible;
-}
-
-.prose pre .code-outline-rect {
-  fill: none;
-  stroke: var(--text-tertiary);
-  stroke-width: 1;
-  stroke-linejoin: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  opacity: 0;
-  transition: stroke-dashoffset 0.7s ease-out, opacity 0.2s ease-out;
-}
-
-.prose pre:hover .code-outline-rect {
-  stroke-dashoffset: 0;
-  opacity: 0.75;
-}
-
 @media (max-width: 768px) {
   .prose pre {
     padding: 1em 1.25em;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .prose pre .code-outline-rect {
-    transition: none;
   }
 }
 
@@ -596,16 +621,6 @@ html.dark .prose img[src*='.svg'] {
   border: none;
   line-height: 1.5;
   border-radius: 0;
-}
-
-/* Syntax highlighting on hover only */
-.prose pre code span {
-  transition: color 0.4s ease-out;
-}
-
-.prose pre:not(:hover) code span {
-  color: var(--text-primary) !important;
-  opacity: 0.85;
 }
 
 .prose pre>code * {
@@ -672,12 +687,10 @@ html.dark .prose img[src*='.svg'] {
 
 /* Reading Time */
 .reading-time {
+  margin-top: 0.4rem;
+  font-size: var(--font-size-s);
   color: var(--text-secondary);
-  letter-spacing: -0.025em;
-}
-
-.reading-time .separator {
-  margin: 0 0.25em;
+  letter-spacing: -0.01em;
 }
 
 /* Video */
@@ -712,7 +725,7 @@ html.dark .prose img[src*='.svg'] {
   display: inline-flex;
   align-items: center;
   gap: 0.5em;
-  transition: color 0.2s ease-out;
+  transition: color var(--motion-fast) var(--motion-ease);
 }
 
 .prose details.imports-section summary::-webkit-details-marker {
@@ -727,7 +740,7 @@ html.dark .prose img[src*='.svg'] {
   height: 1.5px;
   background-color: currentColor;
   opacity: 0.8;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--motion-base) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
   transform: rotate(0deg);
 }
 
@@ -748,7 +761,6 @@ html.dark .prose img[src*='.svg'] {
   list-style: none;
   margin: 0.5em 0 0 0;
   padding: 0;
-  animation: importsReveal 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .prose details.imports-section .imports-list li {
@@ -756,58 +768,10 @@ html.dark .prose img[src*='.svg'] {
   padding-left: 0.75em;
   border-left: 1px solid var(--border);
   margin-bottom: 0.15em;
-  opacity: 0;
-  animation: importsItemReveal 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-.prose details.imports-section .imports-list li:nth-child(1) {
-  animation-delay: 0.05s;
-}
-
-.prose details.imports-section .imports-list li:nth-child(2) {
-  animation-delay: 0.1s;
-}
-
-.prose details.imports-section .imports-list li:nth-child(3) {
-  animation-delay: 0.15s;
-}
-
-.prose details.imports-section .imports-list li:nth-child(4) {
-  animation-delay: 0.2s;
-}
-
-.prose details.imports-section .imports-list li:nth-child(5) {
-  animation-delay: 0.25s;
-}
-
-.prose details.imports-section .imports-list li:nth-child(n+6) {
-  animation-delay: 0.3s;
 }
 
 .prose details.imports-section .imports-list li::before {
   display: none;
-}
-
-@keyframes importsReveal {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes importsItemReveal {
-  from {
-    opacity: 0;
-    transform: translateX(-8px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
 }
 
 .prose details.imports-section a {
@@ -815,7 +779,7 @@ html.dark .prose img[src*='.svg'] {
   text-decoration: underline;
   text-decoration-color: var(--border);
   text-underline-offset: 2px;
-  transition: all 0.15s ease-out;
+  transition: color var(--motion-fast) var(--motion-ease), text-decoration-color var(--motion-fast) var(--motion-ease);
 }
 
 .prose details.imports-section a:hover {
