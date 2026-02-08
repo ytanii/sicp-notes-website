@@ -131,6 +131,7 @@
   text-decoration-color: var(--text-tertiary);
   text-underline-offset: 0.12em;
   text-decoration-thickness: 0.06em;
+  text-decoration-skip-ink: auto;
   transition: text-decoration-color var(--motion-fast) var(--motion-ease);
 }
 
@@ -157,6 +158,10 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   overflow: hidden;
+}
+
+.prose table tbody tr:nth-child(even) {
+  background: var(--surface);
 }
 
 /* Table cells */
@@ -189,11 +194,19 @@
   height: auto;
   display: block;
   margin: 2em auto;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
 }
 
 /* Invert SVGs in dark mode (useful for diagrams) */
 html.dark .prose img[src*='.svg'] {
   filter: invert(1);
+}
+
+.prose img[src*='.svg'] {
+  border: none;
+  background: transparent;
 }
 
 .img-placeholder {
@@ -276,10 +289,12 @@ html.dark .prose img[src*='.svg'] {
 /* Blockquotes */
 .prose blockquote {
   border-left: 2px solid var(--border);
-  margin: 0 0 1.75em 0.125em;
-  padding: 0 0 0 1.375em;
+  margin: 0 0 1.5em 0.125em;
+  padding: 0.35em 0 0.35em 1.375em;
   text-align: left;
   color: var(--text-secondary);
+  background-color: var(--surface);
+  border-radius: 6px;
 }
 
 .prose blockquote p {
@@ -297,8 +312,8 @@ html.dark .prose img[src*='.svg'] {
 .prose ul {
   list-style-type: none;
   padding-left: 0;
-  margin-left: 1rem;
-  margin-bottom: 1.5em;
+  margin-left: 1.1rem;
+  margin-bottom: 1.35em;
   line-height: 1.7;
 }
 
@@ -350,8 +365,8 @@ html.dark .prose img[src*='.svg'] {
 .prose ol {
   list-style-position: outside;
   padding-left: 0;
-  margin-left: 1.25rem;
-  margin-bottom: 1.5em;
+  margin-left: 1.35rem;
+  margin-bottom: 1.35em;
   counter-reset: item;
 }
 
@@ -503,6 +518,7 @@ html.dark .prose img[src*='.svg'] {
   min-width: 1.75em;
   display: inline-block;
   text-align: center;
+  background-color: var(--surface);
   /* box-shadow: inset 0 -2.5px 0 var(--border); */
 }
 
@@ -598,6 +614,21 @@ html.dark .prose img[src*='.svg'] {
   margin: 2em 0;
   overflow-x: auto;
   position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.prose pre::-webkit-scrollbar {
+  height: 6px;
+}
+
+.prose pre::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 999px;
+}
+
+.prose pre::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 @media (max-width: 768px) {

@@ -195,6 +195,7 @@ body {
 :focus-visible {
   outline: 1.5px dashed var(--text-tertiary);
   border-radius: 0.25rem;
+  outline-offset: 3px;
 }
 
 body[data-centered='true'] {

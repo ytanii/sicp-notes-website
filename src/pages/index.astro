@@ -60,6 +60,9 @@ const exercisesByChapter = exercises.reduce(
 ---
 
 <IndexLayout title={themeConfig.site.title} description={themeConfig.site.description}>
+  <div class="puddle-overlay" aria-hidden="true">
+    <div class="puddle-container"></div>
+  </div>
   <About />
   <main>
     <div class="chapter-list-container">
@@ -71,11 +74,51 @@ const exercisesByChapter = exercises.reduce(
       />
     </div>
   </main>
+  <script type="module" src="/scripts/puddle.js"></script>
 </IndexLayout>
 
 <style>
+  :global(.page-content) {
+    position: relative;
+    z-index: 1;
+  }
+
   .chapter-list-container {
     position: relative;
+  }
+
+  .puddle-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .puddle-container {
+    display: grid;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    line-height: 1;
+    color: var(--text-secondary);
+    opacity: 0.9;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .puddle-container span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .puddle-overlay {
+      display: none;
+    }
   }
 
   .chapter-list-container::before {
