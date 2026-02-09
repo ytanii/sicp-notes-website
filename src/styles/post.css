@@ -318,7 +318,7 @@ html.dark .prose img[src*='.svg'] {
 }
 
 .prose ul ul {
-  margin-left: 0.625rem;
+  margin-left: 1rem;
   margin-top: 0.5em;
   margin-bottom: 0.5em;
 }
@@ -349,6 +349,13 @@ html.dark .prose img[src*='.svg'] {
   height: var(--size);
   border-radius: 50%;
   background-color: var(--text-tertiary);
+}
+
+/* Second-level bullets as hollow circles */
+.prose ul ul li::before {
+  --size: 0.25rem;
+  background-color: transparent;
+  border: 1px solid var(--text-tertiary);
 }
 
 /* Remove bullet from list items that contain ordered lists */
