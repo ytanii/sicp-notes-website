@@ -105,6 +105,12 @@ import { themeConfig } from '@/config'
     width: 0.8rem;
     height: 0.8rem;
     flex-shrink: 0;
+    transition: transform var(--motion-fast) var(--motion-ease);
+  }
+
+  .back-button:hover svg,
+  .back-button:focus-visible svg {
+    transform: translateX(-2px);
   }
 
   .back-button.fixed-position {

@@ -92,6 +92,31 @@ const exercisesByChapter = exercises.reduce(
     inset: 0;
     z-index: 0;
     pointer-events: none;
+    --puddle-cutout: min(100vw, var(--content-width));
+    --puddle-left: calc(50% - (var(--puddle-cutout) / 2));
+    --puddle-right: calc(50% + (var(--puddle-cutout) / 2));
+    -webkit-mask-image: linear-gradient(
+      to right,
+      #000 0,
+      #000 var(--puddle-left),
+      transparent var(--puddle-left),
+      transparent var(--puddle-right),
+      #000 var(--puddle-right),
+      #000 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      #000 0,
+      #000 var(--puddle-left),
+      transparent var(--puddle-left),
+      transparent var(--puddle-right),
+      #000 var(--puddle-right),
+      #000 100%
+    );
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
   }
 
   .puddle-container {
@@ -101,7 +126,7 @@ const exercisesByChapter = exercises.reduce(
     width: 100%;
     height: 100%;
     font-family: var(--mono);
-    font-size: 0.95rem;
+    font-size: 1.2rem;
     line-height: 1;
     color: var(--text-secondary);
     opacity: 0.9;

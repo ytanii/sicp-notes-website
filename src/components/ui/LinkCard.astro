@@ -329,6 +329,12 @@
     height: 0.875em;
     flex-shrink: 0;
     vertical-align: middle;
+    transition: transform var(--motion-fast) var(--motion-ease);
+  }
+
+  .prose .link-card:hover .link-card-url svg,
+  .prose .link-card:focus-visible .link-card-url svg {
+    transform: translateY(-1px);
   }
 
   .prose .link-card-url span {

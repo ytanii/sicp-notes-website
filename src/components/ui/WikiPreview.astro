@@ -1,0 +1,370 @@
+<script>
+  const WIKI_SELECTOR = ".prose a[href*='wikipedia.org']:not(.link-card):not([data-wiki-preview='off'])"
+  const summaryCache = new Map()
+
+  let popup = null
+  let titleEl = null
+  let bodyEl = null
+  let metaEl = null
+  let imageWrap = null
+  let imageEl = null
+
+  let activeLink = null
+  let showTimer = null
+  let hideTimer = null
+  let requestToken = 0
+
+  const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  const supportsHover = () => canHover && !reducedMotion
+
+  function buildApiUrl(href) {
+    try {
+      const url = new URL(href)
+      if (!url.hostname.endsWith("wikipedia.org")) return null
+
+      let title = ""
+      if (url.pathname.startsWith("/wiki/")) {
+        title = url.pathname.replace("/wiki/", "")
+      } else if (url.pathname === "/w/index.php") {
+        title = url.searchParams.get("title") || ""
+      }
+
+      if (!title) return null
+
+      title = title.split("#")[0]
+      let decoded = title
+      try {
+        decoded = decodeURIComponent(title)
+      } catch {}
+
+      const encodedTitle = encodeURIComponent(decoded).replace(/%2F/g, "%2F")
+      const origin = `${url.protocol}//${url.hostname.replace(".m.wikipedia.org", ".wikipedia.org")}`
+      const domain = url.hostname.replace("www.", "").replace("m.wikipedia.org", "wikipedia.org")
+
+      return {
+        api: `${origin}/api/rest_v1/page/summary/${encodedTitle}?redirect=true`,
+        page: `${origin}/wiki/${encodedTitle}`,
+        domain
+      }
+    } catch {
+      return null
+    }
+  }
+
+  async function fetchSummary(href) {
+    if (summaryCache.has(href)) return summaryCache.get(href)
+
+    const info = buildApiUrl(href)
+    if (!info) {
+      summaryCache.set(href, null)
+      return null
+    }
+
+    const promise = fetch(info.api, { headers: { accept: "application/json" } })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data || data.type === "https://mediawiki.org/wiki/HyperSwitch/errors/not_found") {
+          return null
+        }
+        return {
+          title: data.title || "Wikipedia",
+          extract: data.extract || data.description || "",
+          domain: info.domain,
+          page: info.page,
+          image: data.thumbnail?.source
+            ? {
+                src: data.thumbnail.source,
+                width: data.thumbnail.width,
+                height: data.thumbnail.height,
+                alt: data.title || "Wikipedia"
+              }
+            : data.originalimage?.source
+              ? {
+                  src: data.originalimage.source,
+                  width: data.originalimage.width,
+                  height: data.originalimage.height,
+                  alt: data.title || "Wikipedia"
+                }
+              : null
+        }
+      })
+      .catch(() => null)
+
+    summaryCache.set(href, promise)
+    return promise
+  }
+
+  function ensurePopup() {
+    if (popup) return
+
+    popup = document.createElement("div")
+    popup.className = "wiki-preview"
+    popup.setAttribute("role", "tooltip")
+    popup.setAttribute("aria-hidden", "true")
+
+    popup.innerHTML = `
+      <div class="wiki-preview-inner">
+        <div class="wiki-preview-content">
+          <div class="wiki-preview-title"></div>
+          <div class="wiki-preview-text"></div>
+          <div class="wiki-preview-meta">
+            <span class="wiki-preview-site">Wikipedia</span>
+          </div>
+        </div>
+        <div class="wiki-preview-image" aria-hidden="true">
+          <img loading="lazy" alt="" />
+        </div>
+      </div>
+    `
+
+    titleEl = popup.querySelector(".wiki-preview-title")
+    bodyEl = popup.querySelector(".wiki-preview-text")
+    metaEl = popup.querySelector(".wiki-preview-site")
+    imageWrap = popup.querySelector(".wiki-preview-image")
+    imageEl = popup.querySelector(".wiki-preview-image img")
+
+    popup.addEventListener("mouseenter", () => {
+      if (hideTimer) {
+        clearTimeout(hideTimer)
+        hideTimer = null
+      }
+    })
+
+    popup.addEventListener("mouseleave", () => scheduleHide())
+
+    document.body.appendChild(popup)
+  }
+
+  function positionPopup(link) {
+    if (!popup) return
+    const rect = link.getBoundingClientRect()
+    const popupRect = popup.getBoundingClientRect()
+    const margin = 12
+    const offset = 10
+
+    let top = rect.bottom + offset
+    let left = rect.left
+
+    if (left + popupRect.width > window.innerWidth - margin) {
+      left = window.innerWidth - popupRect.width - margin
+    }
+    if (left < margin) left = margin
+
+    if (top + popupRect.height > window.innerHeight - margin) {
+      top = rect.top - popupRect.height - offset
+    }
+    if (top < margin) top = margin
+
+    popup.style.top = `${Math.round(top)}px`
+    popup.style.left = `${Math.round(left)}px`
+  }
+
+  function showPopup(link, data) {
+    if (!popup || !data) return
+
+    titleEl.textContent = data.title
+    bodyEl.textContent = data.extract
+    metaEl.textContent = data.domain
+
+    if (data.image?.src) {
+      popup.classList.add("has-image")
+      imageWrap.style.display = "block"
+      imageEl.src = data.image.src
+      imageEl.alt = data.image.alt || data.title || ""
+      imageEl.onload = () => positionPopup(link)
+    } else {
+      popup.classList.remove("has-image")
+      imageWrap.style.display = "none"
+      imageEl.removeAttribute("src")
+      imageEl.alt = ""
+    }
+
+    popup.classList.add("is-visible")
+    popup.setAttribute("aria-hidden", "false")
+    positionPopup(link)
+  }
+
+  function hidePopup() {
+    if (!popup) return
+    popup.classList.remove("is-visible")
+    popup.setAttribute("aria-hidden", "true")
+  }
+
+  function scheduleHide() {
+    if (showTimer) {
+      clearTimeout(showTimer)
+      showTimer = null
+    }
+    if (hideTimer) clearTimeout(hideTimer)
+    hideTimer = window.setTimeout(() => {
+      hidePopup()
+      activeLink = null
+    }, 140)
+  }
+
+  function handleEnter(event) {
+    const link = event.currentTarget
+    if (!link || !supportsHover()) return
+
+    if (hideTimer) {
+      clearTimeout(hideTimer)
+      hideTimer = null
+    }
+
+    activeLink = link
+    requestToken += 1
+    const token = requestToken
+
+    if (showTimer) clearTimeout(showTimer)
+    showTimer = window.setTimeout(async () => {
+      ensurePopup()
+
+      const data = await fetchSummary(link.href)
+      if (token !== requestToken || activeLink !== link) return
+      if (!data) {
+        hidePopup()
+        return
+      }
+
+      showPopup(link, data)
+    }, 260)
+  }
+
+  function handleLeave() {
+    scheduleHide()
+  }
+
+  function setupWikiPreviews() {
+    if (!supportsHover()) return
+
+    document.querySelectorAll(WIKI_SELECTOR).forEach((link) => {
+      if (link.dataset.wikiPreviewInit) return
+      link.dataset.wikiPreviewInit = "1"
+      link.classList.add("wiki-link")
+      link.addEventListener("mouseenter", handleEnter)
+      link.addEventListener("mouseleave", handleLeave)
+      link.addEventListener("focus", handleEnter)
+      link.addEventListener("blur", handleLeave)
+    })
+  }
+
+  document.addEventListener("astro:page-load", setupWikiPreviews)
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupWikiPreviews)
+  } else {
+    setupWikiPreviews()
+  }
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (popup?.classList.contains("is-visible")) {
+        hidePopup()
+      }
+    },
+    { passive: true }
+  )
+</script>
+
+<style is:global>
+  .wiki-preview {
+    position: fixed;
+    z-index: 1200;
+    max-width: min(28rem, 92vw);
+    padding: 0.85rem 0.95rem 0.8rem;
+    border-radius: 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    color: var(--text-primary);
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+    transition: opacity var(--motion-fast) var(--motion-ease), transform var(--motion-base) var(--motion-ease);
+    pointer-events: none;
+  }
+
+  .wiki-preview.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  .wiki-preview-inner {
+    display: flex;
+    gap: 0.85rem;
+    align-items: flex-start;
+  }
+
+  .wiki-preview-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    min-width: 0;
+  }
+
+  .wiki-preview-title {
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--spacing-m);
+  }
+
+  .wiki-preview-text {
+    font-size: var(--font-size-s);
+    color: var(--text-secondary);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .wiki-preview-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .wiki-preview-image {
+    width: 92px;
+    height: 92px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+    display: none;
+  }
+
+  .wiki-preview.has-image .wiki-preview-image {
+    display: block;
+  }
+
+  .wiki-preview-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .wiki-preview-site::before {
+    content: "";
+    display: inline-block;
+    width: 0.95em;
+    height: 0.76em;
+    margin-right: 0.35em;
+    vertical-align: -0.1em;
+    background-color: currentColor;
+    opacity: 0.8;
+    -webkit-mask: url('/icons/wikipedia.svg') no-repeat center / contain;
+    mask: url('/icons/wikipedia.svg') no-repeat center / contain;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wiki-preview {
+      transition: none;
+    }
+  }

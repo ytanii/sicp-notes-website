@@ -1,0 +1,374 @@
+<script>
+  const INTERNAL_SELECTOR =
+    ".prose a[href]:not(.link-card):not([data-link-preview='off']):not([href^='#'])"
+
+  const previewCache = new Map()
+
+  let popup = null
+  let titleEl = null
+  let bodyEl = null
+  let metaEl = null
+  let imageWrap = null
+  let imageEl = null
+
+  let activeLink = null
+  let showTimer = null
+  let hideTimer = null
+  let requestToken = 0
+
+  const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  const supportsHover = () => canHover && !reducedMotion
+
+  const skipExtensions = [
+    "pdf",
+    "zip",
+    "png",
+    "jpg",
+    "jpeg",
+    "webp",
+    "gif",
+    "svg",
+    "mp4",
+    "webm",
+    "mp3",
+    "wav",
+    "txt"
+  ]
+
+  function isSkippablePath(pathname) {
+    const lower = pathname.toLowerCase()
+    return skipExtensions.some((ext) => lower.endsWith(`.${ext}`))
+  }
+
+  function resolveInternalUrl(href) {
+    try {
+      const url = new URL(href, window.location.origin)
+      if (url.origin !== window.location.origin) return null
+      if (isSkippablePath(url.pathname)) return null
+      return url
+    } catch {
+      return null
+    }
+  }
+
+  async function fetchPreview(url) {
+    const key = url.pathname
+    if (previewCache.has(key)) return previewCache.get(key)
+
+    const promise = fetch(url.pathname, {
+      headers: {
+        accept: "text/html"
+      }
+    })
+      .then((res) => (res.ok ? res.text() : null))
+      .then((html) => {
+        if (!html) return null
+        const doc = new DOMParser().parseFromString(html, "text/html")
+
+        const title =
+          doc.querySelector("meta[property='og:title']")?.getAttribute("content") ||
+          doc.querySelector("meta[name='twitter:title']")?.getAttribute("content") ||
+          doc.querySelector("title")?.textContent ||
+          doc.querySelector("h1")?.textContent ||
+          ""
+
+        const description =
+          doc.querySelector("meta[property='og:description']")?.getAttribute("content") ||
+          doc.querySelector("meta[name='description']")?.getAttribute("content") ||
+          doc.querySelector("meta[name='twitter:description']")?.getAttribute("content") ||
+          doc.querySelector(".prose p")?.textContent ||
+          doc.querySelector("article p")?.textContent ||
+          ""
+
+        const image =
+          doc.querySelector("meta[property='og:image']")?.getAttribute("content") ||
+          doc.querySelector("meta[name='twitter:image']")?.getAttribute("content") ||
+          ""
+
+        const imageUrl = image ? new URL(image, url.origin).toString() : ""
+
+        return {
+          title: (title || "").trim(),
+          description: (description || "").trim(),
+          image: imageUrl,
+          path: url.pathname.replace(/\/$/, "") || "/"
+        }
+      })
+      .catch(() => null)
+
+    previewCache.set(key, promise)
+    return promise
+  }
+
+  function ensurePopup() {
+    if (popup) return
+
+    popup = document.createElement("div")
+    popup.className = "internal-preview"
+    popup.setAttribute("role", "tooltip")
+    popup.setAttribute("aria-hidden", "true")
+
+    popup.innerHTML = `
+      <div class="internal-preview-inner">
+        <div class="internal-preview-content">
+          <div class="internal-preview-title"></div>
+          <div class="internal-preview-text"></div>
+          <div class="internal-preview-meta">
+            <span class="internal-preview-site">Internal</span>
+          </div>
+        </div>
+        <div class="internal-preview-image" aria-hidden="true">
+          <img loading="lazy" alt="" />
+        </div>
+      </div>
+    `
+
+    titleEl = popup.querySelector(".internal-preview-title")
+    bodyEl = popup.querySelector(".internal-preview-text")
+    metaEl = popup.querySelector(".internal-preview-site")
+    imageWrap = popup.querySelector(".internal-preview-image")
+    imageEl = popup.querySelector(".internal-preview-image img")
+
+    popup.addEventListener("mouseenter", () => {
+      if (hideTimer) {
+        clearTimeout(hideTimer)
+        hideTimer = null
+      }
+    })
+
+    popup.addEventListener("mouseleave", () => scheduleHide())
+
+    document.body.appendChild(popup)
+  }
+
+  function positionPopup(link) {
+    if (!popup) return
+    const rect = link.getBoundingClientRect()
+    const popupRect = popup.getBoundingClientRect()
+    const margin = 12
+    const offset = 10
+
+    let top = rect.bottom + offset
+    let left = rect.left
+
+    if (left + popupRect.width > window.innerWidth - margin) {
+      left = window.innerWidth - popupRect.width - margin
+    }
+    if (left < margin) left = margin
+
+    if (top + popupRect.height > window.innerHeight - margin) {
+      top = rect.top - popupRect.height - offset
+    }
+    if (top < margin) top = margin
+
+    popup.style.top = `${Math.round(top)}px`
+    popup.style.left = `${Math.round(left)}px`
+  }
+
+  function showPopup(link, data) {
+    if (!popup || !data) return
+
+    titleEl.textContent = data.title || "Untitled"
+    bodyEl.textContent = data.description
+    metaEl.textContent = data.path
+
+    if (data.image) {
+      popup.classList.add("has-image")
+      imageWrap.style.display = "block"
+      imageEl.src = data.image
+      imageEl.alt = data.title || ""
+      imageEl.onload = () => positionPopup(link)
+    } else {
+      popup.classList.remove("has-image")
+      imageWrap.style.display = "none"
+      imageEl.removeAttribute("src")
+      imageEl.alt = ""
+    }
+
+    popup.classList.add("is-visible")
+    popup.setAttribute("aria-hidden", "false")
+    positionPopup(link)
+  }
+
+  function hidePopup() {
+    if (!popup) return
+    popup.classList.remove("is-visible")
+    popup.setAttribute("aria-hidden", "true")
+  }
+
+  function scheduleHide() {
+    if (showTimer) {
+      clearTimeout(showTimer)
+      showTimer = null
+    }
+    if (hideTimer) clearTimeout(hideTimer)
+    hideTimer = window.setTimeout(() => {
+      hidePopup()
+      activeLink = null
+    }, 140)
+  }
+
+  function handleEnter(event) {
+    const link = event.currentTarget
+    if (!link || !supportsHover()) return
+
+    const resolved = resolveInternalUrl(link.getAttribute("href") || "")
+    if (!resolved) return
+
+    if (resolved.pathname === window.location.pathname && resolved.hash) return
+
+    if (hideTimer) {
+      clearTimeout(hideTimer)
+      hideTimer = null
+    }
+
+    activeLink = link
+    requestToken += 1
+    const token = requestToken
+
+    if (showTimer) clearTimeout(showTimer)
+    showTimer = window.setTimeout(async () => {
+      ensurePopup()
+
+      const data = await fetchPreview(resolved)
+      if (token !== requestToken || activeLink !== link) return
+      if (!data) {
+        hidePopup()
+        return
+      }
+
+      showPopup(link, data)
+    }, 240)
+  }
+
+  function handleLeave() {
+    scheduleHide()
+  }
+
+  function setupInternalPreviews() {
+    if (!supportsHover()) return
+
+    document.querySelectorAll(INTERNAL_SELECTOR).forEach((link) => {
+      if (link.dataset.internalPreviewInit) return
+      const href = link.getAttribute("href") || ""
+      const resolved = resolveInternalUrl(href)
+      if (!resolved) return
+      if (resolved.hostname.includes("wikipedia.org")) return
+
+      link.dataset.internalPreviewInit = "1"
+      link.classList.add("internal-link")
+      link.addEventListener("mouseenter", handleEnter)
+      link.addEventListener("mouseleave", handleLeave)
+      link.addEventListener("focus", handleEnter)
+      link.addEventListener("blur", handleLeave)
+    })
+  }
+
+  document.addEventListener("astro:page-load", setupInternalPreviews)
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupInternalPreviews)
+  } else {
+    setupInternalPreviews()
+  }
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (popup?.classList.contains("is-visible")) {
+        hidePopup()
+      }
+    },
+    { passive: true }
+  )
+</script>
+
+<style is:global>
+  .internal-preview {
+    position: fixed;
+    z-index: 1200;
+    max-width: min(28rem, 92vw);
+    padding: 0.85rem 0.95rem 0.8rem;
+    border-radius: 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    color: var(--text-primary);
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+    transition: opacity var(--motion-fast) var(--motion-ease), transform var(--motion-base) var(--motion-ease);
+    pointer-events: none;
+  }
+
+  .internal-preview.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  .internal-preview-inner {
+    display: flex;
+    gap: 0.85rem;
+    align-items: flex-start;
+  }
+
+  .internal-preview-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    min-width: 0;
+  }
+
+  .internal-preview-title {
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--spacing-m);
+  }
+
+  .internal-preview-text {
+    font-size: var(--font-size-s);
+    color: var(--text-secondary);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .internal-preview-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .internal-preview-image {
+    width: 92px;
+    height: 92px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+    display: none;
+  }
+
+  .internal-preview.has-image .internal-preview-image {
+    display: block;
+  }
+
+  .internal-preview-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .internal-preview {
+      transition: none;
+    }
+  }
+</style>

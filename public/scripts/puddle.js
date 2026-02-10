@@ -162,6 +162,10 @@ class PuddleData {
 	}
 
 	updateElements() {
+		if (this.updateQueue.size === 0 && this.drawQueue.size === 0) {
+			return;
+		}
+
 		if (!this.isUpdateDone) {
 			console.warn("Previous update not completed, skipping update");
 			return;
@@ -238,7 +242,7 @@ class Puddle {
 	}
 
 	setupGrid() {
-		clearInterval(this.updateLoop);
+		this.stop();
 		this.data.refresh(this.numRows, this.numCols);
 
 		const fragment = document.createDocumentFragment();
@@ -260,7 +264,30 @@ class Puddle {
 		}
 
 		this.parentNode.appendChild(fragment);
-		this.updateLoop = setInterval(() => this.data.updateElements(), this.updateInterval);
+		this.start();
+	}
+
+	start() {
+		if (this.isRunning) return;
+		this.isRunning = true;
+		let lastTime = 0;
+		const loop = (time) => {
+			if (!this.isRunning) return;
+			if (time - lastTime >= this.updateInterval) {
+				this.data.updateElements();
+				lastTime = time;
+			}
+			this.rafId = requestAnimationFrame(loop);
+		};
+		this.rafId = requestAnimationFrame(loop);
+	}
+
+	stop() {
+		this.isRunning = false;
+		if (this.rafId) {
+			cancelAnimationFrame(this.rafId);
+			this.rafId = null;
+		}
 	}
 }
 
@@ -269,6 +296,15 @@ if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
 		const containers = document.querySelectorAll(".puddle-container");
 		const puddles = [];
 		containers.forEach((container) => puddles.push(new Puddle(container)));
+
+		const handleVisibility = () => {
+			if (document.hidden) {
+				puddles.forEach((puddle) => puddle.stop());
+			} else {
+				puddles.forEach((puddle) => puddle.start());
+			}
+		};
+		document.addEventListener("visibilitychange", handleVisibility);
 
 		let lastMove = 0;
 		const moveInterval = 16;
