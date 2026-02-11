@@ -6,26 +6,26 @@
   --content-width: 25rem;
 
   /* Typography */
-  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --serif: 'Besley', Georgia, 'Times New Roman', Times, serif;
-  --heading: 'acumin-pro', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --sans: 'Space Grotesk', 'Avenir Next', 'Segoe UI', sans-serif;
+  --serif: 'Literata', 'Iowan Old Style', 'Palatino Linotype', Palatino, serif;
+  --heading: 'Literata', 'Iowan Old Style', 'Palatino Linotype', Palatino, serif;
   --mono: 'Berkeley Mono', 'SF Mono', SFMono-Regular, ui-monospace, monospace;
 
-  --font-size-s: 0.9375rem;
-  --font-size-m: 1.0625rem;
-  --font-size-l: 1.25rem;
-
+  --font-size-s: 0.92rem;
+  --font-size-m: 1.03rem;
+  --font-size-l: 1.22rem;
+  --font-size-xl: 1.45rem;
 
   /* --font-size-s: 1.1rem;
   --font-size-m: 1.2rem;
   --font-size-l: 1.3rem; */
 
-  --font-weight-light: 350;
+  --font-weight-light: 400;
   --font-weight-regular: 400;
-  --font-weight-bold: 700;
+  --font-weight-bold: 600;
 
-  --spacing-s: -0.08em;
-  --spacing-m: -0.02em;
+  --spacing-s: -0.025em;
+  --spacing-m: -0.005em;
 
   /* Motion */
   --motion-fast: 120ms;
@@ -123,7 +123,8 @@ html.dark {
 
 html {
   background-color: var(--bg);
-  background-image: radial-gradient(1000px 520px at 12% -18%, var(--bg-tint), transparent 60%),
+  background-image:
+    radial-gradient(1000px 520px at 12% -18%, var(--bg-tint), transparent 60%),
     radial-gradient(900px 480px at 88% -14%, var(--bg-tint), transparent 60%);
   background-attachment: fixed;
   scroll-behavior: smooth;
@@ -140,7 +141,6 @@ html {
 }
 
 @media (max-width: 768px) {
-
   :target,
   [id] {
     scroll-margin-top: 4rem;
@@ -149,9 +149,12 @@ html {
 
 body {
   font-family: var(--sans);
-  font-feature-settings: 'ss03' 1;
+  font-feature-settings:
+    'liga' 1,
+    'calt' 1;
+  font-optical-sizing: auto;
   font-size: var(--font-size-m);
-  line-height: 1.75;
+  line-height: 1.72;
   color: var(--text-primary);
   margin: 0;
   min-height: 100vh;
@@ -167,6 +170,39 @@ body {
   font-synthesis: none;
   word-wrap: break-word;
   overflow-wrap: break-word;
+}
+
+code,
+pre,
+kbd,
+samp {
+  font-family: var(--mono);
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.6rem;
+  left: 0.8rem;
+  z-index: 2000;
+  padding: 0.3rem 0.55rem;
+  border-radius: 0.35rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: var(--font-size-s);
+  opacity: 0;
+  transform: translateY(-0.5rem);
+  pointer-events: none;
+  transition:
+    opacity var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease);
+}
+
+.skip-link:focus-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 @media (max-width: 768px) {

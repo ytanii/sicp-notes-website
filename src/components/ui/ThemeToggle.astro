@@ -4,7 +4,7 @@ import { themeConfig } from '@/config'
 
 {
   themeConfig.general.themeToggle && (
-    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to dark theme" aria-pressed="false">
       <div class="theme-icon hollow-circle" />
       <div class="theme-icon solid-circle" />
     </button>
@@ -12,6 +12,14 @@ import { themeConfig } from '@/config'
 }
 
 <script is:inline>
+  function syncThemeToggleState() {
+    const themeToggle = document.getElementById('theme-toggle')
+    if (!themeToggle) return
+    const isDark = document.documentElement.classList.contains('dark')
+    themeToggle.setAttribute('aria-pressed', String(isDark))
+    themeToggle.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme')
+  }
+
   function bindThemeToggle() {
     const themeToggle = document.getElementById('theme-toggle')
     if (!themeToggle || !window.ThemeManager) return
@@ -19,30 +27,46 @@ import { themeConfig } from '@/config'
     // Skip if already bound
     if (themeToggle.dataset.themeBound) return
     themeToggle.dataset.themeBound = 'true'
+    syncThemeToggleState()
 
     themeToggle.addEventListener('click', function (e) {
       e.preventDefault()
       e.stopPropagation()
       window.ThemeManager.toggle()
+      syncThemeToggleState()
     })
+
+    if (!document.documentElement.hasAttribute('data-theme-toggle-themechange-bound')) {
+      document.documentElement.setAttribute('data-theme-toggle-themechange-bound', '1')
+      document.addEventListener('themechange', syncThemeToggleState)
+    }
   }
 
-  // Use only astro:page-load as it fires on initial load and navigation
-  document.addEventListener('astro:page-load', bindThemeToggle)
+  bindThemeToggle()
+
+  if (!document.documentElement.hasAttribute('data-theme-toggle-bound')) {
+    document.documentElement.setAttribute('data-theme-toggle-bound', '1')
+    // Use only astro:page-load as it fires on initial load and navigation
+    document.addEventListener('astro:page-load', bindThemeToggle)
+  }
 </script>
 
 <style>
   .theme-toggle {
-    background: none;
-    border: none;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 999px;
     cursor: pointer;
     display: flex;
     align-items: center;
     height: 1.5rem;
     gap: 0.1875rem;
     color: var(--text-primary);
-    transition: opacity var(--motion-fast) var(--motion-ease);
-    padding: 0 0 0 0.5rem;
+    transition:
+      opacity var(--motion-fast) var(--motion-ease),
+      background-color var(--motion-fast) var(--motion-ease),
+      border-color var(--motion-fast) var(--motion-ease);
+    padding: 0.1rem 0.5rem;
     position: relative;
   }
 
@@ -50,6 +74,18 @@ import { themeConfig } from '@/config'
     width: 0.4375rem;
     height: 0.4375rem;
     transition: transform var(--motion-base) var(--motion-ease);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .theme-toggle:hover {
+      background: var(--surface);
+      border-color: var(--border);
+    }
+  }
+
+  .theme-toggle:focus-visible {
+    background: var(--surface);
+    border-color: var(--text-tertiary);
   }
 
   .hollow-circle {
@@ -71,4 +107,5 @@ import { themeConfig } from '@/config'
   html.dark .solid-circle {
     transform: translateX(calc(-0.4375rem - 0.1875rem));
   }
+
 </style>

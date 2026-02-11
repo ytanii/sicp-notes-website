@@ -4,10 +4,61 @@ import IndexLayout from '@/layouts/IndexLayout.astro'
 ---
 
 <IndexLayout title={`404 - ${themeConfig.site.title}`} description="Not Found">
+  <section class="error-shell">
+    <p class="error-code">404</p>
+    <h1 class="error-title">That page does not exist.</h1>
+    <p class="error-description">
+      The link may be outdated, or the page may have moved. You can return home and continue from the chapter list.
+    </p>
+    <a class="error-link" href="/">Back to home</a>
+  </section>
+
   <style>
-    .error-container {
+    .error-shell {
+      margin-top: 2.75rem;
+      padding: 1.1rem 0;
+      display: grid;
+      gap: 0.75rem;
+      border-top: 1px solid var(--border);
+      max-width: 36rem;
+    }
+
+    .error-code {
+      margin: 0;
+      font-family: var(--mono);
+      font-size: 0.88rem;
+      color: var(--text-tertiary);
+      letter-spacing: 0.08em;
+    }
+
+    .error-title {
+      margin: 0;
+      font-size: clamp(1.25rem, 1rem + 1vw, 1.8rem);
+      line-height: 1.25;
+      letter-spacing: var(--spacing-m);
+      font-family: var(--heading);
+      font-weight: 600;
+    }
+
+    .error-description {
+      margin: 0;
       color: var(--text-secondary);
+      max-width: 32rem;
+    }
+
+    .error-link {
+      width: fit-content;
+      color: var(--text-primary);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: 0.55rem;
+      padding: 0.35rem 0.7rem;
+      transition: background-color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease);
+    }
+
+    .error-link:hover {
+      background: var(--surface);
+      border-color: var(--text-tertiary);
     }
   </style>
-  <p class="error-container">Page Not Found...</p>
 </IndexLayout>

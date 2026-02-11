@@ -10,7 +10,9 @@ import { themeConfig } from '@/config'
       try {
         await navigator.clipboard.writeText(text)
         return true
-      } catch {}
+      } catch (error) {
+        void error
+      }
     }
 
     try {
@@ -73,7 +75,9 @@ import { themeConfig } from '@/config'
         button.innerHTML = copyIcon
       }
 
+      button.setAttribute('type', 'button')
       button.setAttribute('aria-label', 'Copy code')
+      button.setAttribute('title', 'Copy code')
 
       const refreshIconRefs = () => {
         const icons = button.querySelectorAll('svg')
@@ -129,6 +133,7 @@ import { themeConfig } from '@/config'
 
         button.setAttribute('data-copying', 'true')
         button.setAttribute('aria-label', 'Copied')
+        button.setAttribute('title', 'Copied')
         button.classList.add('is-visible')
         button.classList.remove('is-copied')
         void button.offsetWidth
@@ -144,6 +149,7 @@ import { themeConfig } from '@/config'
           button.classList.remove('is-copied')
           button.innerHTML = copyIcon
           button.setAttribute('aria-label', 'Copy code')
+          button.setAttribute('title', 'Copy code')
           refreshIconRefs()
           copyResetTimers.delete(button)
         }, 1200)
@@ -153,10 +159,12 @@ import { themeConfig } from '@/config'
     })
   }
 
-  // Use only astro:page-load as it fires on initial load and navigation
-  document.addEventListener('astro:page-load', () => {
-    initCopyCode()
-  })
+  initCopyCode()
+
+  if (!document.documentElement.hasAttribute('data-copy-code-bound')) {
+    document.documentElement.setAttribute('data-copy-code-bound', '1')
+    document.addEventListener('astro:page-load', initCopyCode)
+  }
 </script>
 
 <style is:inline>
@@ -198,6 +206,14 @@ import { themeConfig } from '@/config'
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    .copy-button {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
   }
 
   .copy-button.is-copied {

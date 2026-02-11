@@ -14,8 +14,8 @@ const today = new Date()
     </div>
     <div class="powered-by">
       Powered by{' '}
-      <a href="https://astro.build">Astro</a> &{' '}
-      <a href="https://github.com/the3ash/astro-chiri">Chiri</a>
+      <a href="https://astro.build" rel="noopener noreferrer" target="_blank">Astro</a> &{' '}
+      <a href="https://github.com/the3ash/astro-chiri" rel="noopener noreferrer" target="_blank">Chiri</a>
     </div>
   </div>
 </footer>
@@ -55,5 +55,18 @@ const today = new Date()
 
   footer a:hover {
     color: var(--text-primary);
+  }
+
+  @media (max-width: 640px) {
+    .footer-content {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.25rem;
+    }
+
+    .copyright,
+    .powered-by {
+      white-space: normal;
+    }
   }
 </style>

@@ -45,7 +45,7 @@ const ogImage = `/open-graph/${postSlug}.png`
     slot="head"
   />
   <div class="post-container">
-    <main>
+    <main id="main-content" tabindex="-1">
       <div class="prose">
         <GradientMask />
         <BackButton />
@@ -168,9 +168,14 @@ const ogImage = `/open-graph/${postSlug}.png`
     })
   }
 
-  // Run on page load
-  styleImportsSections()
+  function handlePostPageLoad() {
+    styleImportsSections()
+  }
 
-  // Run on view transitions (for Astro view transitions)
-  document.addEventListener('astro:page-load', styleImportsSections)
+  handlePostPageLoad()
+
+  if (!document.documentElement.hasAttribute('data-post-layout-bound')) {
+    document.documentElement.setAttribute('data-post-layout-bound', '1')
+    document.addEventListener('astro:page-load', handlePostPageLoad)
+  }
 </script>

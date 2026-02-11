@@ -4,9 +4,9 @@ export const themeConfig: ThemeConfig = {
   // SITE INFO ///////////////////////////////////////////////////////////////////////////////////////////
   site: {
     website: 'https://sicpnotes.pages.dev/', // Site domain
-    title: '', // Site title
+    title: 'SICP Notes', // Site title
     author: 'y', // Author name
-    description: 'built by Astro', // Site description
+    description: 'Structured notes and exercises from Structure and Interpretation of Computer Programs.', // Site description
     language: 'en-US' // Default language
   },
 

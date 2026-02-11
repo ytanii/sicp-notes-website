@@ -156,6 +156,39 @@
   mask: url('/icons/wikipedia.svg') no-repeat center / contain;
 }
 
+/* External links */
+.prose a.external-link:not(.wiki-link):not(.pdf-link)::after {
+  content: '';
+  display: inline-block;
+  width: 0.65em;
+  height: 0.65em;
+  margin-left: 0.24em;
+  vertical-align: 0.02em;
+  background-color: currentColor;
+  opacity: 0.45;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Cpath%20d='M6.5%202.5h7v7h-1.6V5.2L3.9%2013.2l-1.1-1.1L10.8%204.1H6.5z'%20fill='black'/%3E%3C/svg%3E")
+    no-repeat center / contain;
+  mask: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Cpath%20d='M6.5%202.5h7v7h-1.6V5.2L3.9%2013.2l-1.1-1.1L10.8%204.1H6.5z'%20fill='black'/%3E%3C/svg%3E")
+    no-repeat center / contain;
+}
+
+/* PDF links */
+.prose a.pdf-link:not(.wiki-link)::after {
+  content: 'PDF';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.35em;
+  padding: 0.05em 0.35em 0.07em;
+  font-size: 0.62em;
+  letter-spacing: 0.08em;
+  border-radius: 0.35em;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
 /* Paragraphs */
 .prose p {
   line-height: 1.7;

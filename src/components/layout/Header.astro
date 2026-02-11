@@ -1,17 +1,19 @@
 ---
 import { themeConfig } from '@/config'
 import ThemeToggle from '@/components/ui/ThemeToggle.astro'
+
+const homeLabel = themeConfig.site.title || themeConfig.site.author || 'Home'
 ---
 
 <header>
   <nav>
-    <a href="/">{themeConfig.site.title}</a>
+    <a href="/" aria-label="Go to home page">{homeLabel}</a>
     <ThemeToggle />
   </nav>
 </header>
 <style>
   header {
-    margin: 0;
+    margin: 0 0 1.6rem;
   }
   nav {
     display: flex;
@@ -25,5 +27,11 @@ import ThemeToggle from '@/components/ui/ThemeToggle.astro'
     min-width: 3rem;
     display: inline-block;
     font-family: var(--heading);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    header a:hover {
+      color: var(--text-secondary);
+    }
   }
 </style>

@@ -1,24 +1,45 @@
 <script>
+  type WikiImage = {
+    src: string
+    width?: number
+    height?: number
+    alt: string
+  }
+
+  type WikiSummary = {
+    title: string
+    extract: string
+    domain: string
+    page: string
+    image: WikiImage | null
+  }
+
+  type WikiApiInfo = {
+    api: string
+    page: string
+    domain: string
+  }
+
   const WIKI_SELECTOR = ".prose a[href*='wikipedia.org']:not(.link-card):not([data-wiki-preview='off'])"
-  const summaryCache = new Map()
+  const summaryCache = new Map<string, Promise<WikiSummary | null> | WikiSummary | null>()
 
-  let popup = null
-  let titleEl = null
-  let bodyEl = null
-  let metaEl = null
-  let imageWrap = null
-  let imageEl = null
+  let popup: HTMLDivElement | null = null
+  let titleEl: HTMLElement | null = null
+  let bodyEl: HTMLElement | null = null
+  let metaEl: HTMLElement | null = null
+  let imageWrap: HTMLElement | null = null
+  let imageEl: HTMLImageElement | null = null
 
-  let activeLink = null
-  let showTimer = null
-  let hideTimer = null
+  let activeLink: HTMLAnchorElement | null = null
+  let showTimer: number | null = null
+  let hideTimer: number | null = null
   let requestToken = 0
 
   const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
   const supportsHover = () => canHover && !reducedMotion
 
-  function buildApiUrl(href) {
+  function buildApiUrl(href: string): WikiApiInfo | null {
     try {
       const url = new URL(href)
       if (!url.hostname.endsWith("wikipedia.org")) return null
@@ -36,7 +57,9 @@
       let decoded = title
       try {
         decoded = decodeURIComponent(title)
-      } catch {}
+      } catch (error) {
+        void error
+      }
 
       const encodedTitle = encodeURIComponent(decoded).replace(/%2F/g, "%2F")
       const origin = `${url.protocol}//${url.hostname.replace(".m.wikipedia.org", ".wikipedia.org")}`
@@ -52,7 +75,7 @@
     }
   }
 
-  async function fetchSummary(href) {
+  async function fetchSummary(href: string): Promise<WikiSummary | null> {
     if (summaryCache.has(href)) return summaryCache.get(href)
 
     const info = buildApiUrl(href)
@@ -136,7 +159,7 @@
     document.body.appendChild(popup)
   }
 
-  function positionPopup(link) {
+  function positionPopup(link: HTMLAnchorElement) {
     if (!popup) return
     const rect = link.getBoundingClientRect()
     const popupRect = popup.getBoundingClientRect()
@@ -160,8 +183,9 @@
     popup.style.left = `${Math.round(left)}px`
   }
 
-  function showPopup(link, data) {
+  function showPopup(link: HTMLAnchorElement, data: WikiSummary) {
     if (!popup || !data) return
+    if (!titleEl || !bodyEl || !metaEl || !imageWrap || !imageEl) return
 
     titleEl.textContent = data.title
     bodyEl.textContent = data.extract
@@ -203,8 +227,19 @@
     }, 140)
   }
 
-  function handleEnter(event) {
-    const link = event.currentTarget
+  function handleViewportChange() {
+    if (!popup?.classList.contains("is-visible") || !activeLink) return
+    positionPopup(activeLink)
+  }
+
+  function handleGlobalKeydown(event: KeyboardEvent) {
+    if (event.key === "Escape") {
+      scheduleHide()
+    }
+  }
+
+  function handleEnter(event: Event) {
+    const link = event.currentTarget as HTMLAnchorElement | null
     if (!link || !supportsHover()) return
 
     if (hideTimer) {
@@ -238,7 +273,7 @@
   function setupWikiPreviews() {
     if (!supportsHover()) return
 
-    document.querySelectorAll(WIKI_SELECTOR).forEach((link) => {
+    document.querySelectorAll<HTMLAnchorElement>(WIKI_SELECTOR).forEach((link) => {
       if (link.dataset.wikiPreviewInit) return
       link.dataset.wikiPreviewInit = "1"
       link.classList.add("wiki-link")
@@ -256,15 +291,21 @@
     setupWikiPreviews()
   }
 
-  window.addEventListener(
-    "scroll",
-    () => {
-      if (popup?.classList.contains("is-visible")) {
-        hidePopup()
-      }
-    },
-    { passive: true }
-  )
+  if (!document.documentElement.hasAttribute("data-wiki-preview-bound")) {
+    document.documentElement.setAttribute("data-wiki-preview-bound", "1")
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (popup?.classList.contains("is-visible")) {
+          hidePopup()
+        }
+      },
+      { passive: true }
+    )
+    window.addEventListener("resize", handleViewportChange)
+    document.addEventListener("keydown", handleGlobalKeydown)
+    document.addEventListener("astro:before-preparation", hidePopup)
+  }
 </script>
 
 <style is:global>

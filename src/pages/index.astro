@@ -63,8 +63,49 @@ const exercisesByChapter = exercises.reduce(
   <div class="puddle-overlay" aria-hidden="true">
     <div class="puddle-container"></div>
   </div>
+  <div class="weather-controls" id="weather-controls">
+    <button
+      id="weather-toggle"
+      class="weather-icon"
+      type="button"
+      aria-label="Enable rain effects"
+      aria-pressed="false"
+      title="Rain off"
+    >
+      <svg class="weather-icon-svg" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <path
+          class="icon-cloud"
+          d="M13.405 5.027a5.001 5.001 0 0 0-9.499-1.004A3.5 3.5 0 1 0 3.5 11H13a3 3 0 0 0 .405-5.973M8.5 2a4 4 0 0 1 3.976 3.555.5.5 0 0 0 .5.445H13a2 2 0 0 1 0 4H3.5a2.5 2.5 0 1 1 .605-4.926.5.5 0 0 0 .596-.329A4 4 0 0 1 8.5 2"
+          fill="currentColor"
+        ></path>
+        <path
+          class="icon-drop"
+          d="M4.158 12.025a.5.5 0 0 1 .316.633l-.5 1.5a.5.5 0 0 1-.948-.316l.5-1.5a.5.5 0 0 1 .632-.317"
+          fill="currentColor"
+        ></path>
+        <path
+          class="icon-drop"
+          d="M7.158 12.025a.5.5 0 0 1 .316.633l-1 3a.5.5 0 0 1-.948-.316l1-3a.5.5 0 0 1 .632-.317"
+          fill="currentColor"
+        ></path>
+        <path
+          class="icon-drop"
+          d="M10.158 12.025a.5.5 0 0 1 .316.633l-.5 1.5a.5.5 0 0 1-.948-.316l.5-1.5a.5.5 0 0 1 .632-.317"
+          fill="currentColor"
+        ></path>
+        <path
+          class="icon-drop"
+          d="M13.158 12.025a.5.5 0 0 1 .316.633l-1 3a.5.5 0 1 1-.948-.316l1-3a.5.5 0 0 1 .632-.317"
+          fill="currentColor"
+        ></path>
+      </svg>
+    </button>
+  </div>
   <About />
-  <main>
+  <section class="chapter-index" aria-labelledby="chapters-heading">
+    <div class="chapter-index-header">
+      <h2 id="chapters-heading">Contents</h2>
+    </div>
     <div class="chapter-list-container">
       <ChapterList
         client:load
@@ -73,8 +114,62 @@ const exercisesByChapter = exercises.reduce(
         exercisesByChapter={exercisesByChapter}
       />
     </div>
-  </main>
+  </section>
   <script type="module" src="/scripts/puddle.js"></script>
+  <script is:inline>
+    (() => {
+      let rainEnabled = false
+
+      function syncWeatherIconRaining() {
+        const toggle = document.getElementById('weather-toggle')
+        if (!(toggle instanceof HTMLButtonElement)) return
+
+        const shouldRain = rainEnabled
+        toggle.classList.toggle('is-raining', shouldRain)
+        toggle.setAttribute('aria-pressed', String(rainEnabled))
+        toggle.setAttribute('aria-label', rainEnabled ? 'Disable rain effects' : 'Enable rain effects')
+        toggle.setAttribute('title', rainEnabled ? 'Rain on' : 'Rain off')
+      }
+
+      function bindWeatherControls() {
+        const weatherControls = document.getElementById('weather-controls')
+        const weatherToggle = document.getElementById('weather-toggle')
+
+        if (!(weatherControls instanceof HTMLElement)) return
+        if (!(weatherToggle instanceof HTMLButtonElement)) return
+
+        const runtime = window.PuddleRuntime
+        rainEnabled =
+          runtime && typeof runtime.getRainEnabled === 'function' ? runtime.getRainEnabled() : false
+        syncWeatherIconRaining()
+
+        if (weatherControls.dataset.weatherBound === '1') return
+        weatherControls.dataset.weatherBound = '1'
+
+        weatherToggle.addEventListener('click', (event) => {
+          event.preventDefault()
+          const api = window.PuddleRuntime
+          if (!api || typeof api.toggleRain !== 'function') return
+          rainEnabled = api.toggleRain()
+          syncWeatherIconRaining()
+        })
+      }
+
+      function handleRainChange(event) {
+        if (!(event instanceof CustomEvent)) return
+        rainEnabled = Boolean(event.detail?.enabled)
+        syncWeatherIconRaining()
+      }
+
+      bindWeatherControls()
+
+      if (!document.documentElement.hasAttribute('data-weather-controls-bound')) {
+        document.documentElement.setAttribute('data-weather-controls-bound', '1')
+        document.addEventListener('astro:page-load', bindWeatherControls)
+        window.addEventListener('puddle:rain-change', handleRainChange)
+      }
+    })()
+  </script>
 </IndexLayout>
 
 <style>
@@ -87,6 +182,111 @@ const exercisesByChapter = exercises.reduce(
     position: relative;
   }
 
+  .chapter-index {
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .chapter-index-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.8rem;
+    margin-bottom: 0.1rem;
+  }
+
+  .chapter-index-header h2 {
+    margin: 0;
+    font-size: 0.98rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    font-family: var(--heading);
+  }
+
+  .weather-controls {
+    position: fixed;
+    top: 0.58rem;
+    right: 0.62rem;
+    z-index: 210;
+    display: grid;
+    justify-items: end;
+  }
+
+  .weather-icon {
+    width: 1.72rem;
+    height: 1.72rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-secondary);
+    opacity: 0.56;
+    overflow: hidden;
+    cursor: pointer;
+    transition:
+      opacity var(--motion-fast) var(--motion-ease),
+      color var(--motion-fast) var(--motion-ease),
+      border-color var(--motion-fast) var(--motion-ease),
+      background-color var(--motion-fast) var(--motion-ease);
+  }
+
+  .weather-icon-svg {
+    width: 1.12rem;
+    height: 1.12rem;
+    display: block;
+    overflow: visible;
+  }
+
+  .icon-cloud,
+  .icon-drop {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .icon-cloud {
+    opacity: 0.9;
+  }
+
+  .icon-drop {
+    opacity: 0.42;
+    transition: opacity var(--motion-fast) var(--motion-ease);
+  }
+
+  .weather-icon[aria-pressed='true'] {
+    opacity: 0.92;
+    color: var(--text-primary);
+    border-color: var(--border);
+    background: color-mix(in srgb, var(--bg) 85%, transparent);
+  }
+
+  .weather-icon.is-raining {
+    box-shadow: 0 0 0.4rem color-mix(in srgb, var(--text-tertiary) 24%, transparent);
+  }
+
+  .weather-icon.is-raining .icon-drop {
+    opacity: 0.82;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .weather-icon:hover {
+      opacity: 0.9;
+      color: var(--text-primary);
+      border-color: var(--border);
+      background: color-mix(in srgb, var(--bg) 82%, transparent);
+    }
+  }
+
+  .weather-icon:focus-visible {
+    opacity: 0.95;
+    color: var(--text-primary);
+    border-color: var(--text-tertiary);
+    background: color-mix(in srgb, var(--bg) 86%, transparent);
+  }
+
   .puddle-overlay {
     position: fixed;
     inset: 0;
@@ -95,22 +295,24 @@ const exercisesByChapter = exercises.reduce(
     --puddle-cutout: min(100vw, var(--content-width));
     --puddle-left: calc(50% - (var(--puddle-cutout) / 2));
     --puddle-right: calc(50% + (var(--puddle-cutout) / 2));
+    --puddle-fade: clamp(2.5rem, 5vw, 5rem);
+    --puddle-center-opacity: 0.36;
     -webkit-mask-image: linear-gradient(
       to right,
       #000 0,
-      #000 var(--puddle-left),
-      transparent var(--puddle-left),
-      transparent var(--puddle-right),
-      #000 var(--puddle-right),
+      #000 calc(var(--puddle-left) - var(--puddle-fade)),
+      rgba(0, 0, 0, var(--puddle-center-opacity)) calc(var(--puddle-left) + var(--puddle-fade)),
+      rgba(0, 0, 0, var(--puddle-center-opacity)) calc(var(--puddle-right) - var(--puddle-fade)),
+      #000 calc(var(--puddle-right) + var(--puddle-fade)),
       #000 100%
     );
     mask-image: linear-gradient(
       to right,
       #000 0,
-      #000 var(--puddle-left),
-      transparent var(--puddle-left),
-      transparent var(--puddle-right),
-      #000 var(--puddle-right),
+      #000 calc(var(--puddle-left) - var(--puddle-fade)),
+      rgba(0, 0, 0, var(--puddle-center-opacity)) calc(var(--puddle-left) + var(--puddle-fade)),
+      rgba(0, 0, 0, var(--puddle-center-opacity)) calc(var(--puddle-right) - var(--puddle-fade)),
+      #000 calc(var(--puddle-right) + var(--puddle-fade)),
       #000 100%
     );
     -webkit-mask-size: 100% 100%;
@@ -126,12 +328,19 @@ const exercisesByChapter = exercises.reduce(
     width: 100%;
     height: 100%;
     font-family: var(--mono);
-    font-size: 1.2rem;
+    font-size: clamp(0.9rem, 1.35vw, 1.15rem);
     line-height: 1;
+    letter-spacing: 0.01em;
     color: var(--text-secondary);
-    opacity: 0.9;
+    opacity: 0.68;
     user-select: none;
     pointer-events: none;
+    transition: opacity var(--motion-base) var(--motion-ease);
+    will-change: opacity;
+  }
+
+  :global(html.dark) .puddle-container {
+    opacity: 0.48;
   }
 
   .puddle-container span {
@@ -156,5 +365,31 @@ const exercisesByChapter = exercises.reduce(
     background: var(--border);
     opacity: 0.6;
     pointer-events: none;
+  }
+
+  @media (max-width: 680px) {
+    .chapter-index-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.15rem;
+    }
+
+    .chapter-index-header h2 {
+      font-size: 0.9rem;
+    }
+
+    .chapter-list-container::before {
+      left: -0.75rem;
+    }
+
+    .weather-controls {
+      top: 0.52rem;
+      right: 0.56rem;
+    }
+
+    .weather-icon {
+      width: 1.64rem;
+      height: 1.64rem;
+    }
   }
 </style>

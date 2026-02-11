@@ -1,0 +1,39 @@
+<script>
+  function enhanceLinks() {
+    const links = document.querySelectorAll(".prose a[href]")
+    links.forEach((link) => {
+      if (link.hasAttribute("data-link-enhanced")) return
+      link.setAttribute("data-link-enhanced", "1")
+
+      const href = link.getAttribute("href") || ""
+      if (!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return
+
+      let url = null
+      try {
+        url = new URL(href, window.location.href)
+      } catch {
+        return
+      }
+
+      if (url.origin !== window.location.origin) {
+        link.classList.add("external-link")
+        const existingRel = (link.getAttribute("rel") || "").toLowerCase().split(/\s+/).filter(Boolean)
+        const relTokens = new Set(existingRel)
+        relTokens.add("noopener")
+        relTokens.add("noreferrer")
+        link.setAttribute("rel", Array.from(relTokens).join(" "))
+      }
+
+      if (url.pathname.toLowerCase().endsWith(".pdf")) {
+        link.classList.add("pdf-link")
+      }
+    })
+  }
+
+  document.addEventListener("astro:page-load", enhanceLinks)
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", enhanceLinks)
+  } else {
+    enhanceLinks()
+  }
+</script>

@@ -1,156 +1,201 @@
 .chapter-list {
-    padding: 0;
-    margin: 0;
-    list-style-type: none;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .chapter-item {
-    display: flex;
-    flex-direction: column;
-    padding: 0.35rem 0;
-    border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--border);
+  opacity: 0;
+  transform: translateY(3px);
+  animation: chapter-enter var(--motion-slow) var(--motion-ease) forwards;
+  animation-delay: calc(var(--stagger, 0) * 24ms);
 }
 
 .chapter-item:last-child {
-    border-bottom: none;
+  border-bottom: none;
+}
+
+.chapter-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    grid-template-rows var(--motion-base) var(--motion-ease),
+    opacity var(--motion-fast) var(--motion-ease),
+    visibility 0s linear var(--motion-base);
+}
+
+.chapter-content.open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    grid-template-rows var(--motion-base) var(--motion-ease),
+    opacity var(--motion-fast) var(--motion-ease),
+    visibility 0s linear;
+}
+
+.chapter-content-inner {
+  min-height: 0;
+  overflow: hidden;
 }
 
 .chapter-summary-wrapper {
-    display: flex;
-    align-items: center;
-    padding: 0.4rem 0;
-    position: relative;
-    gap: 0.65rem;
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0;
+  position: relative;
+  gap: 0.65rem;
+}
+
+.chapter-summary-wrapper[role='button'] {
+  cursor: pointer;
+}
+
+.chapter-summary-wrapper[role='button']:focus-visible {
+  outline: none;
+}
+
+.chapter-summary-wrapper[role='button']:focus-visible .chapter-link {
+  background-color: var(--surface-strong);
 }
 
 /* Toggle Button */
 .chapter-toggle {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    width: 1.5rem;
-    height: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    z-index: 2;
-    flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .chapter-toggle-placeholder {
-    width: 1.5rem;
-    height: 1.5rem;
-    flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
 }
 
 /* The rotating stick */
 .chapter-toggle::after {
-    content: '';
-    position: absolute;
-    width: 0.7rem;
-    height: 1px;
-    background-color: var(--text-secondary);
-    opacity: 0.8;
-    transition: transform var(--motion-fast) var(--motion-ease), opacity var(--motion-fast) var(--motion-ease);
-    transform: rotate(0deg);
-    /* Horizontal (Closed) */
+  content: '';
+  position: absolute;
+  width: 0.7rem;
+  height: 1px;
+  background-color: var(--text-secondary);
+  opacity: 0.8;
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    opacity var(--motion-fast) var(--motion-ease);
+  transform: rotate(0deg);
+  /* Horizontal (Closed) */
 }
 
 /* Open State for Toggle */
 .chapter-toggle.open::after {
-    transform: rotate(90deg);
-    /* Vertical (Open) */
-    opacity: 0.6;
+  transform: rotate(90deg);
+  /* Vertical (Open) */
+  opacity: 0.6;
 }
 
 /* Link Styling */
 .chapter-link {
-    color: var(--text-primary);
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 1rem;
-    transition: color var(--motion-fast) var(--motion-ease),
-        background-color var(--motion-fast) var(--motion-ease);
-    flex-grow: 1;
-    padding: 0.15rem 0.25rem;
-    border-radius: 6px;
+  color: var(--text-primary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  transition:
+    color var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease);
+  flex-grow: 1;
+  padding: 0.15rem 0.25rem;
+  border-radius: 6px;
 }
 
 .chapter-number {
-    font-weight: 600;
-    color: var(--text-secondary);
-    font-variant-numeric: tabular-nums;
-    min-width: 1.5rem;
-    font-size: 0.95em;
-    opacity: 0.75;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  min-width: 1.5rem;
+  font-size: 0.95em;
+  opacity: 0.75;
 }
 
 .chapter-title {
-    font-weight: 500;
-    font-family: var(--heading);
-    text-wrap: balance;
+  font-weight: 500;
+  font-family: var(--heading);
+  text-wrap: balance;
 }
 
 /* Tree Structure Wrapper */
 .section-list-wrapper {
-    margin: 0 0 0.35rem 0;
-    position: relative;
-    padding-left: 1rem;
-    /* Center trunk under the toggle (1.5rem / 2) */
+  margin: 0 0 0.35rem 0;
+  position: relative;
+  padding-left: 1rem;
+  /* Center trunk under the toggle (1.5rem / 2) */
 }
 
 /* Tree Trunk (Vertical Line) */
 .tree-trunk {
-    position: absolute;
-    top: 0;
-    left: 1rem;
-    /* Center of the toggle */
-    width: 1.5px;
-    height: 100%;
-    background-color: var(--border);
-    transform: translateX(-50%);
-    opacity: 0.35;
+  position: absolute;
+  top: 0;
+  left: 1rem;
+  /* Center of the toggle */
+  width: 1.5px;
+  height: 100%;
+  background-color: var(--border);
+  transform: translateX(-50%);
+  opacity: 0.35;
 }
 
 .section-list {
-    padding: 0;
-    margin: 0;
-    list-style-type: none;
-    position: relative;
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  position: relative;
 }
 
 .section-item {
-    position: relative;
-    padding-left: 1.9rem;
+  position: relative;
+  padding-left: 1.9rem;
 }
 
 .section-item a {
-    color: var(--text-primary);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.1rem 0.25rem;
-    border-radius: 6px;
-    transition: color var(--motion-fast) var(--motion-ease),
-        background-color var(--motion-fast) var(--motion-ease);
-    position: relative;
+  color: var(--text-primary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.1rem 0.25rem;
+  border-radius: 6px;
+  transition:
+    color var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease);
+  position: relative;
 }
 
 /* Branch Logic (Horizontal Lines) */
 .section-item::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    /* Start from the trunk position (relative to section-item's padding-left?) No... */
-    /* 
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  /* Start from the trunk position (relative to section-item's padding-left?) No... */
+  /* 
        Trunk is at .section-list-wrapper padding-left (0.75rem)
        .section-item is inside .section-list inside .section-list-wrapper
        
@@ -160,15 +205,15 @@
        We want the line to go from the trunk (left: 0 of .section-list-wrapper essentially?)
        to the text.
     */
-    left: 0;
-    width: 1.75rem;
-    /* Gap between trunk and text */
-    height: 1px;
-    background-color: var(--text-secondary);
-    transform-origin: left;
-    transform: scaleX(1);
-    opacity: 0.25;
-    z-index: 1;
+  left: 0;
+  width: 1.75rem;
+  /* Gap between trunk and text */
+  height: 1px;
+  background-color: var(--text-secondary);
+  transform-origin: left;
+  transform: scaleX(1);
+  opacity: 0.25;
+  z-index: 1;
 }
 
 /* Adjust .section-item to help with absolute positioning of branches */
@@ -183,98 +228,124 @@
 
 /* Hover Effects */
 @media (hover: hover) and (pointer: fine) {
-    .chapter-link:hover {
-        color: var(--text-secondary);
-        background-color: var(--surface);
-    }
+  .chapter-link:hover {
+    color: var(--text-secondary);
+    background-color: var(--surface);
+  }
 
-    .chapter-toggle:hover::after {
-        opacity: 1;
-    }
+  .chapter-summary-wrapper[role='button']:hover .chapter-toggle::after {
+    opacity: 1;
+  }
 
-    .section-item a:hover {
-        color: var(--text-secondary);
-        background-color: var(--surface);
-    }
+  .section-item a:hover {
+    color: var(--text-secondary);
+    background-color: var(--surface);
+  }
+}
+
+@keyframes chapter-enter {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chapter-item {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  .chapter-content,
+  .chapter-content.open {
+    transition: none;
+  }
 }
 
 .section-number {
-    color: var(--text-tertiary);
-    font-variant-numeric: tabular-nums;
-    min-width: 2rem;
-    font-size: 0.875em;
-    opacity: 0.6;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+  min-width: 2rem;
+  font-size: 0.875em;
+  opacity: 0.6;
 }
 
 .section-title {
-    font-weight: 400;
-    white-space: normal;
-    font-family: var(--heading);
-    text-wrap: balance;
+  font-weight: 400;
+  white-space: normal;
+  font-family: var(--heading);
+  text-wrap: balance;
 }
 
 .chapter-link:focus-visible,
 .section-item a:focus-visible,
 .exercise-chip a:focus-visible {
-    background-color: var(--surface-strong);
+  background-color: var(--surface-strong);
 }
 
 /* Exercises */
 .exercises-wrapper {
-    margin-top: 0.35rem;
-    padding-left: 1.9rem;
-    position: relative;
+  margin-top: 0.35rem;
+  padding-left: 1.9rem;
+  position: relative;
 }
 
 /* Branch for Exercises Header? Maybe later if requested. */
 .exercises-header {
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--text-tertiary);
-    margin-bottom: 0.35rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  margin-bottom: 0.35rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .exercises-list {
-    padding: 0;
-    margin-top: 0.4rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.3rem;
-    padding-bottom: 0.35rem;
-    position: relative;
+  padding: 0;
+  margin-top: 0.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding-bottom: 0.35rem;
+  position: relative;
 }
 
 .exercise-chip {
-    list-style: none;
+  list-style: none;
 }
 
 .exercise-chip a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.82rem;
-    font-weight: 500;
-    font-variant-numeric: tabular-nums;
-    color: var(--text-secondary);
-    text-decoration: none;
-    padding: 0.12rem 0.5rem;
-    border: 1px solid transparent;
-    border-radius: 6px;
-    letter-spacing: 0.01em;
-    transition: color var(--motion-fast) var(--motion-ease),
-        border-color var(--motion-fast) var(--motion-ease),
-        background-color var(--motion-fast) var(--motion-ease);
-    background-color: transparent;
-    position: relative;
-    z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 0.12rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  letter-spacing: 0.01em;
+  transition:
+    color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease);
+  background-color: transparent;
+  position: relative;
+  z-index: 1;
 }
 
 @media (hover: hover) and (pointer: fine) {
-    .exercise-chip a:hover {
-        color: var(--text-primary);
-        background-color: var(--surface);
-        border-color: var(--border);
-    }
+  .exercise-chip a:hover {
+    color: var(--text-primary);
+    background-color: var(--surface);
+    border-color: var(--border);
+  }
 }

@@ -6,7 +6,8 @@ const { toc = [] }: TOCProps = Astro.props
 ---
 
 <div class="toc-container" id="toc">
-  <nav class="toc-nav">
+  <nav class="toc-nav" aria-label="Table of contents">
+    <p class="toc-title">On this page</p>
     <ul class="toc-list" id="toc-list">
       <!-- TOC items -->
       {
@@ -48,7 +49,7 @@ const { toc = [] }: TOCProps = Astro.props
       if (!state.container) return false
 
       state.links = document.querySelectorAll('.toc-link')
-      state.headings = document.querySelectorAll('h1, h2, h3')
+      state.headings = document.querySelectorAll('.prose .content h1, .prose .content h2, .prose .content h3')
 
       // Build heading map (id -> {link, heading})
       state.headingMap.clear()
@@ -70,7 +71,7 @@ const { toc = [] }: TOCProps = Astro.props
     function checkContent() {
       if (!state.container || !state.links) return
 
-      state.hasContent = state.links.length > 0
+      state.hasContent = state.links.length > 1
 
       if (!state.hasContent) {
         state.container.style.display = 'none'
@@ -129,7 +130,12 @@ const { toc = [] }: TOCProps = Astro.props
           const rect = target.getBoundingClientRect()
           const scrollTop = window.pageYOffset || document.documentElement.scrollTop
           const offset = rect.top + scrollTop - 96
-          window.scrollTo({ top: offset, behavior: 'smooth' })
+          const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          window.scrollTo({ top: offset, behavior: prefersReducedMotion ? 'auto' : 'smooth' })
+          if (!target.hasAttribute('tabindex')) {
+            target.setAttribute('tabindex', '-1')
+          }
+          target.focus({ preventScroll: true })
           history.pushState(null, null, href)
         }
       }
@@ -151,11 +157,15 @@ const { toc = [] }: TOCProps = Astro.props
       }
 
       // Update active state
-      state.links.forEach((link) => link.classList.remove('active'))
+      state.links.forEach((link) => {
+        link.classList.remove('active')
+        link.removeAttribute('aria-current')
+      })
 
       if (currentActive && state.headingMap.has(currentActive)) {
         const entry = state.headingMap.get(currentActive)
         entry.link.classList.add('active')
+        entry.link.setAttribute('aria-current', 'location')
 
         // Ensure active link is visible in TOC
         if (state.container && state.container.scrollHeight > state.container.clientHeight) {
@@ -216,26 +226,21 @@ const { toc = [] }: TOCProps = Astro.props
       })
     }
 
-    // Event listeners
-    document.addEventListener('astro:page-load', () => {
+    function runInit() {
       cleanup()
       init()
-    })
+    }
 
-    document.addEventListener('astro:after-swap', () => {
-      cleanup()
-      init()
-    })
+    runInit()
 
-    // Fallback for when Astro transitions are disabled
-    document.addEventListener('DOMContentLoaded', () => {
-      if (!state.container || !state.hasContent) {
-        init()
-      }
-    })
-
-    window.addEventListener('resize', handleResize)
-    window.addEventListener('scroll', handleScroll)
+    if (!document.documentElement.hasAttribute('data-toc-bound')) {
+      document.documentElement.setAttribute('data-toc-bound', '1')
+      document.addEventListener('astro:page-load', runInit)
+      document.addEventListener('astro:after-swap', runInit)
+      document.addEventListener('DOMContentLoaded', runInit)
+      window.addEventListener('resize', handleResize)
+      window.addEventListener('scroll', handleScroll, { passive: true })
+    }
   })()
 </script>
 
@@ -280,6 +285,14 @@ const { toc = [] }: TOCProps = Astro.props
 
   .toc-nav {
     font-family: var(--sans);
+  }
+
+  .toc-title {
+    margin: 0 0 0.35rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
   }
 
   .toc-list,

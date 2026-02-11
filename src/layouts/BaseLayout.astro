@@ -4,7 +4,8 @@ import { ClientRouter } from 'astro:transitions'
 import ThemeManager from '@/components/ui/ThemeManager.astro'
 import FaviconThemeSwitcher from '@/components/ui/FaviconThemeSwitcher.astro'
 import WikiPreview from '@/components/ui/WikiPreview.astro'
-import InternalPreview from '@/components/ui/InternalPreview.astro'
+import FootnotePreview from '@/components/ui/FootnotePreview.astro'
+import LinkEnhancements from '@/components/ui/LinkEnhancements.astro'
 import TransitionWrapper from '@/components/layout/TransitionWrapper.astro'
 import type { LayoutProps } from '@/types'
 
@@ -32,6 +33,7 @@ const finalWidth = shouldUseCustomWidth ? `${widthValue}rem` : '25rem'
       ${shouldUseCustomWidth ? `--content-width: ${widthValue}rem;` : ''}
     `}
   >
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <FaviconThemeSwitcher />
 
     {
@@ -46,7 +48,8 @@ const finalWidth = shouldUseCustomWidth ? `${widthValue}rem` : '25rem'
       )
     }
     <WikiPreview />
-    <InternalPreview />
+    <FootnotePreview />
+    <LinkEnhancements />
   </body>
 </html>
 

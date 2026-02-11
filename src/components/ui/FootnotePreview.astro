@@ -1,0 +1,190 @@
+<script>
+  const FOOTNOTE_SELECTOR = "[data-footnote-ref]"
+
+  let popup = null
+  let contentEl = null
+  let activeRef = null
+  let showTimer = null
+  let hideTimer = null
+
+  const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  const supportsHover = () => canHover && !reducedMotion
+
+  function ensurePopup() {
+    if (popup) return
+
+    popup = document.createElement("div")
+    popup.className = "footnote-preview"
+    popup.setAttribute("role", "tooltip")
+    popup.setAttribute("aria-hidden", "true")
+    popup.innerHTML = `<div class="footnote-preview-inner"></div>`
+    contentEl = popup.querySelector(".footnote-preview-inner")
+
+    popup.addEventListener("mouseenter", () => {
+      if (hideTimer) {
+        clearTimeout(hideTimer)
+        hideTimer = null
+      }
+    })
+
+    popup.addEventListener("mouseleave", () => scheduleHide())
+
+    document.body.appendChild(popup)
+  }
+
+  function getFootnoteContent(link) {
+    const href = link.getAttribute("href")
+    if (!href || !href.startsWith("#")) return null
+
+    const footnote = document.querySelector(href)
+    if (!footnote) return null
+
+    const content = footnote.querySelector("p") || footnote
+    const clone = content.cloneNode(true)
+    clone.querySelectorAll("[data-footnote-backref]").forEach((el) => el.remove())
+    return clone
+  }
+
+  function positionPopup(link) {
+    if (!popup) return
+    const rect = link.getBoundingClientRect()
+    const popupRect = popup.getBoundingClientRect()
+    const margin = 12
+    const offset = 10
+
+    let top = rect.bottom + offset
+    let left = rect.left
+
+    if (left + popupRect.width > window.innerWidth - margin) {
+      left = window.innerWidth - popupRect.width - margin
+    }
+    if (left < margin) left = margin
+
+    if (top + popupRect.height > window.innerHeight - margin) {
+      top = rect.top - popupRect.height - offset
+    }
+    if (top < margin) top = margin
+
+    popup.style.top = `${Math.round(top)}px`
+    popup.style.left = `${Math.round(left)}px`
+  }
+
+  function showPopup(link, node) {
+    ensurePopup()
+    if (!popup || !contentEl) return
+
+    contentEl.innerHTML = ""
+    contentEl.appendChild(node)
+
+    popup.classList.add("is-visible")
+    popup.setAttribute("aria-hidden", "false")
+    positionPopup(link)
+  }
+
+  function hidePopup() {
+    if (!popup) return
+    popup.classList.remove("is-visible")
+    popup.setAttribute("aria-hidden", "true")
+  }
+
+  function scheduleHide() {
+    if (showTimer) {
+      clearTimeout(showTimer)
+      showTimer = null
+    }
+    if (hideTimer) clearTimeout(hideTimer)
+    hideTimer = window.setTimeout(() => {
+      hidePopup()
+      activeRef = null
+    }, 140)
+  }
+
+  function handleOver(event) {
+    if (!supportsHover()) return
+
+    const link = event.target?.closest?.(FOOTNOTE_SELECTOR)
+    if (!link) return
+    if (link === activeRef) return
+
+    const contentNode = getFootnoteContent(link)
+    if (!contentNode) return
+
+    if (hideTimer) {
+      clearTimeout(hideTimer)
+      hideTimer = null
+    }
+
+    activeRef = link
+
+    if (showTimer) clearTimeout(showTimer)
+    showTimer = window.setTimeout(() => {
+      showPopup(link, contentNode)
+    }, 180)
+  }
+
+  function handleOut(event) {
+    if (!activeRef) return
+    const related = event.relatedTarget
+    if (related && activeRef.contains(related)) return
+    if (popup && related && popup.contains(related)) return
+    scheduleHide()
+  }
+
+  if (!document.body.hasAttribute("data-footnote-preview-bound")) {
+    document.body.setAttribute("data-footnote-preview-bound", "1")
+
+    document.addEventListener("mouseover", handleOver)
+    document.addEventListener("mouseout", handleOut)
+
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (popup?.classList.contains("is-visible")) {
+          hidePopup()
+        }
+      },
+      { passive: true }
+    )
+  }
+</script>
+
+<style is:global>
+  .footnote-preview {
+    position: fixed;
+    z-index: 1200;
+    max-width: min(22rem, 90vw);
+    padding: 0.65rem 0.8rem;
+    border-radius: 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    color: var(--text-primary);
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+    transition: opacity var(--motion-fast) var(--motion-ease), transform var(--motion-base) var(--motion-ease);
+    pointer-events: none;
+    font-size: var(--font-size-s);
+    line-height: 1.55;
+  }
+
+  .footnote-preview.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  .footnote-preview-inner p {
+    margin: 0;
+  }
+
+  .footnote-preview-inner a {
+    text-decoration: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .footnote-preview {
+      transition: none;
+    }
+  }
+</style>

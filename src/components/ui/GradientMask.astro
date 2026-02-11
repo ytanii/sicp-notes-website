@@ -36,9 +36,14 @@
     updateMask()
   }
 
-  // Use only astro:page-load as it fires on initial load and navigation
-  document.addEventListener('astro:page-load', initGradientMask)
-  window.addEventListener('scroll', onScroll, { passive: true })
+  initGradientMask()
+
+  if (!document.documentElement.hasAttribute('data-gradient-mask-bound')) {
+    document.documentElement.setAttribute('data-gradient-mask-bound', '1')
+    // Use only astro:page-load as it fires on initial load and navigation
+    document.addEventListener('astro:page-load', initGradientMask)
+    window.addEventListener('scroll', onScroll, { passive: true })
+  }
 </script>
 
 <style>
@@ -85,7 +90,9 @@
       transparent 100%
     );
     opacity: 0;
-    transition: background-color 0.2s ease-out;
+    transition:
+      opacity var(--motion-fast) var(--motion-ease),
+      background-color var(--motion-fast) var(--motion-ease);
   }
 
   @media (min-width: 768px) {

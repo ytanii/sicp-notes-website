@@ -99,11 +99,10 @@
 
         // Listen for system theme changes
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-          const newSystemTheme = e.matches ? 'dark' : 'light'
-
-          // Always follow system theme changes and update stored theme preference
-          this.setStoredTheme(newSystemTheme)
-          this.applyTheme(newSystemTheme)
+          if (this.isUsingSystemTheme()) {
+            const newSystemTheme = e.matches ? 'dark' : 'light'
+            this.applyTheme(newSystemTheme)
+          }
         })
 
         this.initialized = true

@@ -39,4 +39,14 @@ const { Content } = hasContent && aboutEntry ? await render(aboutEntry) : { Cont
     margin-top: 0;
   }
 
+  @media (max-width: 640px) {
+    .about :global(p:first-of-type)::first-letter {
+      float: none;
+      font-size: 1em;
+      line-height: inherit;
+      margin: 0;
+      font-weight: inherit;
+    }
+  }
+
 </style>
